@@ -580,11 +580,11 @@ Cada tarefa é pequena e tem verificação objetiva. Dono entre colchetes.
 - [x] F0-19 Tabela `evento_analitico` e barramento com outbox. Verifica: evento gravado na mesma transação do fato; rollback descarta ambos.
 
 ### 11.3 Autenticação e tenant [AS]
-- [ ] F0-20 Definir em `packages/dominio/src/identidade` os tipos `Papel`, `Sessao`, `Credencial`. Verifica: typecheck verde e PR de contrato mergeado.
-- [ ] F0-21 Login por e-mail e senha (argon2id) para dono/profissional. Verifica: teste de login válido e inválido.
-- [ ] F0-22 Interceptor de tenant que abre transação com `SET LOCAL`. Verifica: teste de integração lê só o tenant da sessão.
-- [ ] F0-23 Guard global com rotas públicas explícitas. Verifica: rota sem guard faz o teste de varredura falhar.
-- [ ] F0-24 Esqueleto do emissor de tokens do operador com audiência separada. Verifica: token de estabelecimento é recusado na rota do operador.
+- [x] F0-20 Definir em `packages/dominio/src/identidade` os tipos `Papel`, `Sessao`, `Credencial`. Verifica: typecheck verde e PR de contrato mergeado.
+- [x] F0-21 Login por e-mail e senha (argon2id) para dono/profissional. Verifica: teste de login válido e inválido.
+- [x] F0-22 Interceptor de tenant que abre transação com `SET LOCAL`. Verifica: teste de integração lê só o tenant da sessão.
+- [x] F0-23 Guard global com rotas públicas explícitas. Verifica: rota sem guard faz o teste de varredura falhar.
+- [x] F0-24 Esqueleto do emissor de tokens do operador com audiência separada. Verifica: token de estabelecimento é recusado na rota do operador.
 
 ### 11.4 Design tokens [DS]
 - [x] F0-25 Definir tipo `TemaDoEstabelecimento` e valores padrão por vertical. Verifica: typecheck e snapshot dos padrões.

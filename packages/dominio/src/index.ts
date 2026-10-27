@@ -90,3 +90,35 @@ export { PedidoRecusadoPeloGatewayError } from "./cobranca/pedido-recusado-pelo-
 export { GatewayDePagamentoEmMemoria } from "./cobranca/testes-suporte/gateway-de-pagamento-em-memoria";
 export type { EventoDeDominio } from "./compartilhado/evento-de-dominio";
 export type { PublicadorDeEventos } from "./compartilhado/publicador-de-eventos";
+
+// identidade (dono: AS)
+export { Audiencia } from "./identidade/audiencia";
+export { Papel } from "./identidade/papel";
+export type { NomeDoPapel } from "./identidade/papel";
+export { UsuarioId } from "./identidade/usuario-id";
+export { Email } from "./identidade/email";
+export { SenhaEmTexto } from "./identidade/senha-em-texto";
+export type { HashDeSenha } from "./identidade/hash-de-senha";
+export { Credencial } from "./identidade/credencial";
+export { Sessao } from "./identidade/sessao";
+export type { DadosDaSessao, NovaSessao } from "./identidade/sessao";
+export { Usuario } from "./identidade/usuario";
+export type { DadosDoUsuario } from "./identidade/usuario";
+export type { UsuarioRepositorio } from "./identidade/usuario-repositorio";
+export { ContadorDeTentativas } from "./identidade/contador-de-tentativas";
+export type { RegistroDeTentativas } from "./identidade/registro-de-tentativas";
+export type { EmissorDeToken, TokenEmitido } from "./identidade/emissor-de-token";
+export type { VerificadorDeSegundoFator } from "./identidade/verificador-de-segundo-fator";
+export { PapelInvalidoError } from "./identidade/papel-invalido-error";
+export { EmailInvalidoError } from "./identidade/email-invalido-error";
+export { SenhaForaDaPoliticaError } from "./identidade/senha-fora-da-politica-error";
+export type { MotivoDeSenhaRecusada } from "./identidade/senha-fora-da-politica-error";
+export { SessaoInvalidaError } from "./identidade/sessao-invalida-error";
+export { SessaoExpiradaError } from "./identidade/sessao-expirada-error";
+export { TenantDivergenteError } from "./identidade/tenant-divergente-error";
+export { CredenciaisInvalidasError } from "./identidade/credenciais-invalidas-error";
+export { ContaBloqueadaPorTentativasError } from "./identidade/conta-bloqueada-por-tentativas-error";
+export { SegundoFatorObrigatorioError } from "./identidade/segundo-fator-obrigatorio-error";
+export { HashDeSenhaFake } from "./identidade/testes-suporte/hash-de-senha-fake";
+export { UsuarioRepositorioEmMemoria } from "./identidade/testes-suporte/usuario-repositorio-em-memoria";
+export { VerificadorDeSegundoFatorEmMemoria } from "./identidade/testes-suporte/verificador-de-segundo-fator-em-memoria";
