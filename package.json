@@ -17,7 +17,12 @@
     "test:integration": "turbo run test:integration",
     "test:e2e": "turbo run test:e2e",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "gerar:api-client": "pnpm --filter @marquei/api-client gerar",
+    "db:migrate": "pnpm --filter @marquei/api db:migrate",
+    "db:migrate:create": "pnpm --filter @marquei/api db:migrate:create --",
+    "db:seed": "pnpm --filter @marquei/api db:seed",
+    "db:reset": "pnpm --filter @marquei/api db:reset"
   },
   "devDependencies": {
     "@marquei/config": "workspace:*",

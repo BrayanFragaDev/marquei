@@ -1,0 +1,362 @@
+openapi: 3.1.0
+info:
+  title: Marquei API
+  version: 0.1.0
+  description: |
+    Contrato inicial da API (BN-1). Fonte unica para o cliente gerado em `packages/api-client`.
+
+    Convencoes:
+    - O estabelecimento (tenant) NUNCA trafega em corpo, query, header ou rota autenticada:
+      vem do token bearer. A unica rota publica que recebe o `slug` e a resolucao da marca.
+    - Datas e horas em ISO 8601 UTC (`2026-10-27T15:00:00.000Z`). O parametro `data` de
+      horarios livres e um dia civil no fuso do estabelecimento (`YYYY-MM-DD`).
+    - Dinheiro em centavos inteiros.
+    - Todo erro devolve `{ codigo, mensagem }`; o `codigo` e estavel e e o que o cliente deve usar.
+servers:
+  - url: http://localhost:3000
+    description: Desenvolvimento local
+tags:
+  - name: estabelecimento
+  - name: catalogo
+  - name: agenda
+paths:
+  /v1/estabelecimentos/{slug}:
+    get:
+      tags: [estabelecimento]
+      operationId: obterEstabelecimentoPorSlug
+      summary: Dados publicos do estabelecimento e tema publicado
+      description: Rota publica (com rate limit). Nunca devolve tema em rascunho.
+      security: []
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[a-z0-9](?:[a-z0-9-]{1,61})[a-z0-9]$"
+      responses:
+        "200":
+          description: Estabelecimento encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EstabelecimentoPublico"
+        "404":
+          $ref: "#/components/responses/NaoEncontrado"
+        "429":
+          $ref: "#/components/responses/MuitasRequisicoes"
+  /v1/servicos:
+    get:
+      tags: [catalogo]
+      operationId: listarServicos
+      summary: Lista os servicos ativos do estabelecimento da sessao
+      responses:
+        "200":
+          description: Servicos ativos.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [itens]
+                additionalProperties: false
+                properties:
+                  itens:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Servico"
+        "401":
+          $ref: "#/components/responses/NaoAutenticado"
+  /v1/horarios-livres:
+    get:
+      tags: [agenda]
+      operationId: listarHorariosLivres
+      summary: Horarios livres para um servico em um dia
+      description: |
+        Respeita duracao do servico, intervalo entre atendimentos, folgas, bloqueios e
+        agendamentos existentes. Sem `profissionalId`, agrega todos os profissionais
+        que executam o servico.
+      parameters:
+        - name: servicoId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: profissionalId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: data
+          in: query
+          required: true
+          description: Dia civil no fuso do estabelecimento.
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Horarios livres do dia.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HorariosLivres"
+        "400":
+          $ref: "#/components/responses/RequisicaoInvalida"
+        "401":
+          $ref: "#/components/responses/NaoAutenticado"
+        "404":
+          $ref: "#/components/responses/NaoEncontrado"
+  /v1/agendamentos:
+    post:
+      tags: [agenda]
+      operationId: criarAgendamento
+      summary: Cria um agendamento para o cliente autenticado
+      description: O cliente final e o estabelecimento vem do token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NovoAgendamento"
+      responses:
+        "201":
+          description: Agendamento confirmado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Agendamento"
+        "400":
+          $ref: "#/components/responses/RequisicaoInvalida"
+        "401":
+          $ref: "#/components/responses/NaoAutenticado"
+        "404":
+          $ref: "#/components/responses/NaoEncontrado"
+        "409":
+          description: Horario ja ocupado (`horario_indisponivel`).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Erro"
+        "422":
+          description: "Regra de negocio violada (ex.: `agendamento_no_passado`)."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Erro"
+        "429":
+          $ref: "#/components/responses/MuitasRequisicoes"
+  /v1/agendamentos/{id}/cancelar:
+    post:
+      tags: [agenda]
+      operationId: cancelarAgendamento
+      summary: Cancela um agendamento dentro da politica de cancelamento
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Agendamento cancelado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Agendamento"
+        "401":
+          $ref: "#/components/responses/NaoAutenticado"
+        "404":
+          $ref: "#/components/responses/NaoEncontrado"
+        "422":
+          description: >-
+            Nao cancelavel (`agendamento_nao_cancelavel`) ou fora do prazo
+            (`fora_do_prazo_de_cancelamento`).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Erro"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    RequisicaoInvalida:
+      description: "Entrada invalida (`requisicao_invalida`, `identificador_invalido`)."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Erro"
+    NaoAutenticado:
+      description: Token ausente, expirado ou invalido (`nao_autenticado`).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Erro"
+    NaoEncontrado:
+      description: >-
+        Recurso inexistente ou de outro estabelecimento; ambos respondem igual
+        (`nao_encontrado`, `agendamento_nao_encontrado`).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Erro"
+    MuitasRequisicoes:
+      description: Rate limit excedido (`muitas_requisicoes`).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Erro"
+  schemas:
+    Erro:
+      type: object
+      required: [codigo, mensagem]
+      additionalProperties: false
+      properties:
+        codigo:
+          type: string
+          description: Codigo estavel em snake_case. Use-o, nunca a mensagem, para decidir o comportamento.
+          examples: [horario_indisponivel, fora_do_prazo_de_cancelamento]
+        mensagem:
+          type: string
+          description: Texto para depuracao; nao e contrato.
+        detalhes:
+          type: array
+          description: Problemas por campo, quando a entrada e invalida.
+          items:
+            type: object
+            required: [campo, codigo]
+            additionalProperties: false
+            properties:
+              campo:
+                type: string
+              codigo:
+                type: string
+    Instante:
+      type: string
+      format: date-time
+      description: ISO 8601 em UTC.
+      examples: ["2026-10-27T15:00:00.000Z"]
+    Centavos:
+      type: integer
+      minimum: 0
+      description: Valor em centavos de real.
+    EstabelecimentoPublico:
+      type: object
+      required: [id, slug, nome, vertical, fusoHorario, tema]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        slug:
+          type: string
+        nome:
+          type: string
+        vertical:
+          type: string
+        fusoHorario:
+          type: string
+          description: Fuso IANA.
+          examples: [America/Sao_Paulo]
+        tema:
+          $ref: "#/components/schemas/TemaPublicado"
+    TemaPublicado:
+      type: object
+      description: >-
+        Envelope provisorio do tema publicado. O esquema detalhado dos tokens pertence a
+        `packages/design-tokens` (DS) e sera referenciado aqui quando acordado.
+      required: [versao, tokens]
+      additionalProperties: false
+      properties:
+        versao:
+          type: integer
+          minimum: 1
+        tokens:
+          type: object
+          additionalProperties: true
+    Servico:
+      type: object
+      required: [id, nome, duracaoMinutos, precoCentavos]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        nome:
+          type: string
+        duracaoMinutos:
+          type: integer
+          minimum: 1
+        precoCentavos:
+          $ref: "#/components/schemas/Centavos"
+    HorariosLivres:
+      type: object
+      required: [data, fusoHorario, itens]
+      additionalProperties: false
+      properties:
+        data:
+          type: string
+          format: date
+        fusoHorario:
+          type: string
+        itens:
+          type: array
+          items:
+            $ref: "#/components/schemas/HorarioLivre"
+    HorarioLivre:
+      type: object
+      required: [profissionalId, inicio, fim]
+      additionalProperties: false
+      properties:
+        profissionalId:
+          type: string
+          format: uuid
+        inicio:
+          $ref: "#/components/schemas/Instante"
+        fim:
+          $ref: "#/components/schemas/Instante"
+    NovoAgendamento:
+      type: object
+      required: [servicoId, profissionalId, inicio]
+      additionalProperties: false
+      properties:
+        servicoId:
+          type: string
+          format: uuid
+        profissionalId:
+          type: string
+          format: uuid
+        inicio:
+          $ref: "#/components/schemas/Instante"
+    StatusAgendamento:
+      type: string
+      enum: [confirmado, cancelado, concluido]
+    Agendamento:
+      type: object
+      required: [id, servicoId, profissionalId, inicio, fim, status, precoCentavos]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        servicoId:
+          type: string
+          format: uuid
+        profissionalId:
+          type: string
+          format: uuid
+        inicio:
+          $ref: "#/components/schemas/Instante"
+        fim:
+          $ref: "#/components/schemas/Instante"
+        status:
+          $ref: "#/components/schemas/StatusAgendamento"
+        precoCentavos:
+          $ref: "#/components/schemas/Centavos"
+security:
+  - bearerAuth: []
