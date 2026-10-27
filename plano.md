@@ -569,15 +569,15 @@ Cada tarefa é pequena e tem verificação objetiva. Dono entre colchetes.
 - [x] F0-10 Criar workflow de CI (lint, typecheck, test, build) com Postgres e Redis. Verifica: PR de teste fica verde. (confirmado no PR #1)
 
 ### 11.2 Banco e RLS [AD]
-- [ ] F0-11 Escolher e configurar a ferramenta de migração e criar a migração 0001 (extensões, papéis `app_usuario`, `app_plataforma`, `migrador`). Verifica: migração roda em banco vazio.
-- [ ] F0-12 Criar tabelas `estabelecimento`, `usuario`, `vertical`, `servico`, `profissional`, `cliente_final`, `agendamento`, `tema`. Verifica: `up` e `down` funcionam.
-- [ ] F0-13 Habilitar `ENABLE` e `FORCE ROW LEVEL SECURITY` e políticas por `app.estabelecimento_id`. Verifica: script de auditoria lista 0 tabelas de tenant sem RLS.
-- [ ] F0-14 Restrição de exclusão para impedir agendamentos sobrepostos do mesmo profissional. Verifica: teste de inserção sobreposta falha.
-- [ ] F0-15 Seeds das cinco verticais com serviços de exemplo e vocabulário. Verifica: `SELECT count(*) FROM vertical` = 5.
-- [ ] F0-16 Teste de integração do vazamento: dois tenants, leitura, escrita e update cruzados. Verifica: todos retornam zero linhas ou erro.
-- [ ] F0-17 Teste: consulta sem tenant definido retorna zero linhas. Verifica: teste verde.
-- [ ] F0-18 Repositório base que exige transação com `SET LOCAL`. Verifica: uso fora de transação lança erro tipado.
-- [ ] F0-19 Tabela `evento_analitico` e barramento com outbox. Verifica: evento gravado na mesma transação do fato; rollback descarta ambos.
+- [x] F0-11 Escolher e configurar a ferramenta de migração e criar a migração 0001 (extensões, papéis `app_usuario`, `app_plataforma`, `migrador`). Verifica: migração roda em banco vazio.
+- [x] F0-12 Criar tabelas `estabelecimento`, `usuario`, `vertical`, `servico`, `profissional`, `cliente_final`, `agendamento`, `tema`. Verifica: `up` e `down` funcionam.
+- [x] F0-13 Habilitar `ENABLE` e `FORCE ROW LEVEL SECURITY` e políticas por `app.estabelecimento_id`. Verifica: script de auditoria lista 0 tabelas de tenant sem RLS.
+- [x] F0-14 Restrição de exclusão para impedir agendamentos sobrepostos do mesmo profissional. Verifica: teste de inserção sobreposta falha.
+- [x] F0-15 Seeds das cinco verticais com serviços de exemplo e vocabulário. Verifica: `SELECT count(*) FROM vertical` = 5.
+- [x] F0-16 Teste de integração do vazamento: dois tenants, leitura, escrita e update cruzados. Verifica: todos retornam zero linhas ou erro.
+- [x] F0-17 Teste: consulta sem tenant definido retorna zero linhas. Verifica: teste verde.
+- [x] F0-18 Repositório base que exige transação com `SET LOCAL`. Verifica: uso fora de transação lança erro tipado.
+- [x] F0-19 Tabela `evento_analitico` e barramento com outbox. Verifica: evento gravado na mesma transação do fato; rollback descarta ambos.
 
 ### 11.3 Autenticação e tenant [AS]
 - [ ] F0-20 Definir em `packages/dominio/src/identidade` os tipos `Papel`, `Sessao`, `Credencial`. Verifica: typecheck verde e PR de contrato mergeado.
@@ -593,8 +593,8 @@ Cada tarefa é pequena e tem verificação objetiva. Dono entre colchetes.
 - [x] F0-28 Teste combinatório de todas as combinações de preset, fonte e raio. Verifica: nenhuma combinação gera erro.
 
 ### 11.5 Contratos e qualidade [BN, NC, QA]
-- [ ] F0-29 [BN] Publicar OpenAPI inicial (estabelecimento, serviços, horários livres, agendamento) e script `gerar:api-client`. Verifica: cliente gerado compila.
-- [ ] F0-30 [NC] Publicar interfaces `ProvedorDeMensagem` e `GatewayDePagamento` em `packages/dominio`. Verifica: typecheck verde; PR revisado por CP.
+- [x] F0-29 [BN] Publicar OpenAPI inicial (estabelecimento, serviços, horários livres, agendamento) e script `gerar:api-client`. Verifica: cliente gerado compila.
+- [x] F0-30 [NC] Publicar interfaces `ProvedorDeMensagem` e `GatewayDePagamento` em `packages/dominio`. Verifica: typecheck verde; PR revisado por CP.
 - [x] F0-31 [QA] Criar `testes/` com Playwright, Maestro e k6 configurados e um teste de fumaça de cada. Verifica: smoke roda no CI. (e2e verde no CI; k6 só valida o script e falha sem API, job não bloqueante; Maestro manual até existir app)
 
 **Saída (M0):** todas as tarefas marcadas, CI verde, demonstração de isolamento entre dois tenants e de tema reprovado por contraste.

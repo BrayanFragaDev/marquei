@@ -4,3 +4,4 @@ export { ExecutorTransacional } from "./transacao/executor-transacional";
 export { ProvedorDeTransacao } from "./transacao/provedor-de-transacao";
 export { SemTransacaoComTenantError } from "./transacao/sem-transacao-com-tenant-error";
 export { PublicadorDeEventosOutbox } from "./eventos/publicador-de-eventos-outbox";
+export { NucleoModule, POOL_DE_CONEXOES, PUBLICADOR_DE_EVENTOS } from "./nucleo.module";

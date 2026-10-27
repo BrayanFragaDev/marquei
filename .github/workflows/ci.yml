@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
-    # Servicos para os testes de integracao (entram a partir da Onda 2).
+    # Servicos para os testes de integracao (PostgreSQL e Redis reais, nunca mockados).
     services:
       postgres:
         image: postgres:16-alpine
@@ -69,3 +69,6 @@ jobs:
 
       - name: Lint, tipos, testes e build
         run: pnpm turbo run lint typecheck test build --cache-dir=.turbo
+
+      - name: Integracao (migra o banco e roda os testes contra o Postgres)
+        run: pnpm test:integration
