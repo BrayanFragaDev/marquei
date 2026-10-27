@@ -10,9 +10,15 @@
   "scripts": {
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "gerar": "node scripts/gerar.ts",
+    "gerar:verificar": "node scripts/gerar.ts --verificar"
   },
   "devDependencies": {
-    "@marquei/config": "workspace:*"
+    "@marquei/config": "workspace:*",
+    "openapi-typescript": "^7.13.0"
+  },
+  "dependencies": {
+    "openapi-fetch": "^0.17.0"
   }
 }

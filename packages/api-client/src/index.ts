@@ -1,2 +1,3 @@
-// Esqueleto: o OpenAPI e o cliente gerado entram com o subagente backend-nucleo (BN-1).
-export {};
+export { criarClienteDaApi } from "./cliente";
+export type { ClienteDaApi, OpcoesDoCliente } from "./cliente";
+export type { components, operations, paths } from "./gerado/schema";

@@ -3,13 +3,40 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "API NestJS organizada em modulos. O framework entra na tarefa do nucleo da API (Onda 2).",
+  "description": "API NestJS organizada em modulos.",
   "scripts": {
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run",
+    "test:integration": "pnpm db:migrate && vitest run --config vitest.integracao.config.ts",
+    "db:migrate": "node-pg-migrate up -m db/migracoes --verbose=false",
+    "db:migrate:down": "node-pg-migrate down -m db/migracoes --verbose=false",
+    "db:migrate:create": "node-pg-migrate create -m db/migracoes -j sql",
+    "db:seed": "node db/seed.mjs",
+    "db:reset": "node db/reset.mjs && pnpm db:migrate && pnpm db:seed",
+    "dev": "node --watch --import @swc-node/register/esm-register src/main.ts",
+    "start": "node --import @swc-node/register/esm-register src/main.ts"
   },
   "devDependencies": {
-    "@marquei/config": "workspace:*"
+    "@marquei/config": "workspace:*",
+    "@nestjs/testing": "^12.3.1",
+    "@swc-node/register": "^1.12.1",
+    "@swc/core": "^1.16.20",
+    "@types/pg": "^8.23.1",
+    "@types/supertest": "^7.2.1",
+    "node-pg-migrate": "^9.0.0",
+    "supertest": "^7.3.1",
+    "unplugin-swc": "^2.0.0"
+  },
+  "dependencies": {
+    "@marquei/dominio": "workspace:*",
+    "@nestjs/common": "^12.3.1",
+    "@nestjs/core": "^12.3.1",
+    "@nestjs/platform-express": "^12.3.1",
+    "argon2": "^0.45.1",
+    "jose": "^6.2.13",
+    "pg": "^8.23.1",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2"
   }
 }
