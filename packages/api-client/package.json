@@ -13,6 +13,10 @@
     "test": "vitest run --passWithNoTests"
   },
   "devDependencies": {
-    "@marquei/config": "workspace:*"
+    "@marquei/config": "workspace:*",
+    "openapi-typescript": "^7.13.0"
+  },
+  "dependencies": {
+    "openapi-fetch": "^0.17.0"
   }
 }

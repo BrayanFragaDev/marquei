@@ -10,6 +10,25 @@
     "test": "vitest run --passWithNoTests"
   },
   "devDependencies": {
-    "@marquei/config": "workspace:*"
+    "@marquei/config": "workspace:*",
+    "@nestjs/testing": "^12.3.1",
+    "@swc-node/register": "^1.12.1",
+    "@swc/core": "^1.16.20",
+    "@types/pg": "^8.23.1",
+    "@types/supertest": "^7.2.1",
+    "node-pg-migrate": "^9.0.0",
+    "supertest": "^7.3.1",
+    "unplugin-swc": "^2.0.0"
+  },
+  "dependencies": {
+    "@marquei/dominio": "workspace:*",
+    "@nestjs/common": "^12.3.1",
+    "@nestjs/core": "^12.3.1",
+    "@nestjs/platform-express": "^12.3.1",
+    "argon2": "^0.45.1",
+    "jose": "^6.2.13",
+    "pg": "^8.23.1",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2"
   }
 }
