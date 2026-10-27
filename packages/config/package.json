@@ -1,0 +1,23 @@
+{
+  "name": "@marquei/config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Configuracoes compartilhadas: tsconfig, ESLint (com regras de fronteira), Prettier e env tipado.",
+  "exports": {
+    "./tsconfig.base.json": "./tsconfig.base.json",
+    "./eslint": "./eslint/index.mjs",
+    "./prettier": "./prettier/index.mjs",
+    "./env": "./src/env.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@eslint/js": "^9.39.5",
+    "typescript-eslint": "^8.72.1",
+    "zod": "^4.6.7"
+  }
+}

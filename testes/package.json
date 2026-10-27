@@ -1,0 +1,13 @@
+{
+  "name": "@marquei/testes",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Testes e2e, de carga e de seguranca. Dono: subagente qa-seguranca.",
+  "scripts": {},
+  "devDependencies": {
+    "@marquei/config": "workspace:*",
+    "@playwright/test": "^1.64.1",
+    "@types/k6": "^2.3.1"
+  }
+}

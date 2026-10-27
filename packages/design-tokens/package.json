@@ -1,0 +1,21 @@
+{
+  "name": "@marquei/design-tokens",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Esquema, valores padrao, validacao de contraste e geradores dos temas por estabelecimento.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "devDependencies": {
+    "@marquei/config": "workspace:*"
+  },
+  "dependencies": {
+    "zod": "^4.6.7"
+  }
+}

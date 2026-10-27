@@ -557,14 +557,14 @@ adaptador simulado. Isso permite avançar sem escolher fornecedor.
 Cada tarefa é pequena e tem verificação objetiva. Dono entre colchetes.
 
 ### 11.1 Monorepo e CI [AD]
-- [ ] F0-01 Criar `pnpm-workspace.yaml` com `apps/*` e `packages/*`. Verifica: `pnpm -r list` lista os workspaces.
-- [ ] F0-02 Criar `package.json` raiz com `packageManager` fixado e engines de Node. Verifica: `pnpm install` sem aviso.
-- [ ] F0-03 Criar `turbo.json` com tarefas `lint`, `typecheck`, `test`, `build`, `dev`. Verifica: `pnpm turbo run build` roda e usa cache na segunda execução.
-- [ ] F0-04 Criar `packages/config` com tsconfig base, ESLint e Prettier. Verifica: pacote de exemplo estende e passa no lint.
-- [ ] F0-05 Adicionar env tipado e validado (zod) em `packages/config`. Verifica: variável faltando derruba o start com mensagem clara.
-- [ ] F0-06 Criar esqueletos de `apps/api`, `apps/mobile-cliente`, `apps/console-estabelecimento`, `apps/console-plataforma`, `packages/dominio`, `packages/design-tokens`, `packages/api-client`. Verifica: `pnpm turbo run typecheck` verde.
-- [ ] F0-07 Regra ESLint proibindo `packages/dominio` de importar NestJS, React e drivers de banco. Verifica: importação proibida de teste falha o lint.
-- [ ] F0-08 Regra ESLint proibindo apps de importar de outros apps. Verifica: importação cruzada falha o lint.
+- [x] F0-01 Criar `pnpm-workspace.yaml` com `apps/*` e `packages/*`. Verifica: `pnpm -r list` lista os workspaces.
+- [x] F0-02 Criar `package.json` raiz com `packageManager` fixado e engines de Node. Verifica: `pnpm install` sem aviso.
+- [x] F0-03 Criar `turbo.json` com tarefas `lint`, `typecheck`, `test`, `build`, `dev`. Verifica: `pnpm turbo run build` roda e usa cache na segunda execução.
+- [x] F0-04 Criar `packages/config` com tsconfig base, ESLint e Prettier. Verifica: pacote de exemplo estende e passa no lint.
+- [x] F0-05 Adicionar env tipado e validado (zod) em `packages/config`. Verifica: variável faltando derruba o start com mensagem clara.
+- [x] F0-06 Criar esqueletos de `apps/api`, `apps/mobile-cliente`, `apps/console-estabelecimento`, `apps/console-plataforma`, `packages/dominio`, `packages/design-tokens`, `packages/api-client`. Verifica: `pnpm turbo run typecheck` verde.
+- [x] F0-07 Regra ESLint proibindo `packages/dominio` de importar NestJS, React e drivers de banco. Verifica: importação proibida de teste falha o lint.
+- [x] F0-08 Regra ESLint proibindo apps de importar de outros apps. Verifica: importação cruzada falha o lint.
 - [ ] F0-09 Criar `docker-compose.yml` com Postgres e Redis. Verifica: `docker compose up -d` e `pg_isready` respondem.
 - [ ] F0-10 Criar workflow de CI (lint, typecheck, test, build) com Postgres e Redis. Verifica: PR de teste fica verde.
 

@@ -1,0 +1,18 @@
+{
+  "name": "@marquei/api-client",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Cliente tipado da API e DTOs compartilhados. Parte e gerada a partir do OpenAPI.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "devDependencies": {
+    "@marquei/config": "workspace:*"
+  }
+}

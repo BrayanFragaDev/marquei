@@ -14,12 +14,12 @@ Os comandos abaixo são o alvo. Se algum ainda não existir, criá-lo faz parte 
 
 ```bash
 pnpm install                          # instala tudo (Node LTS e pnpm fixados em package.json/engines)
-pnpm dev --filter=api                 # API NestJS
-pnpm dev --filter=console-estabelecimento
-pnpm dev --filter=console-plataforma
-pnpm dev --filter=mobile-cliente      # Expo
+pnpm dev --filter=@marquei/api                 # API NestJS
+pnpm dev --filter=@marquei/console-estabelecimento
+pnpm dev --filter=@marquei/console-plataforma
+pnpm dev --filter=@marquei/mobile-cliente      # Expo
 pnpm test                             # todos os testes (turbo)
-pnpm test --filter=dominio            # só domínio, rápido, sem I/O
+pnpm test --filter=@marquei/dominio            # só domínio, rápido, sem I/O
 pnpm test:integration                 # integração com Postgres/Redis em contêiner
 pnpm test:e2e                         # fluxos críticos
 pnpm lint
@@ -62,7 +62,7 @@ Regras de dependência (verificadas por lint; violação quebra o build):
 - `apps/*` nunca importam outro app. Compartilhou? Vai para um package.
 - `packages/dominio` não importa nada de fora: nem framework, nem ORM, nem outros packages, nem `Date.now()` direto (receba um `Relogio`).
 - `packages/api-client` e `packages/design-tokens` podem importar `dominio`; o inverso é proibido.
-- `packages/config` não contém código de runtime.
+- `packages/config` contém só configurações e o carregador de env tipado (`carregarEnv`); nenhuma lógica de negócio nem código de interface.
 
 ## 4. Arquitetura orientada a objetos (seção mais importante)
 

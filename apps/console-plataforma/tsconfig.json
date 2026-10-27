@@ -1,0 +1,4 @@
+{
+  "extends": "@marquei/config/tsconfig.base.json",
+  "include": ["src", "test"]
+}
