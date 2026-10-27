@@ -1,0 +1,70 @@
+name: Qualidade
+
+# Portoes de qualidade (e2e, carga). Separado do ci.yml para nao atrasar o CI geral.
+# Dono: subagente qa-seguranca.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: qualidade-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TURBO_TELEMETRY_DISABLED: "1"
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Instalar Chromium do Playwright (com dependencias de sistema)
+        run: pnpm --filter @marquei/testes exec playwright install --with-deps chromium
+
+      # Nesta fase a fumaca prova a infraestrutura (sem app). Nas proximas, BASE_URL
+      # passa a apontar para o ambiente de staging ou para o app subido no job.
+      - name: Testes e2e (Playwright)
+        run: pnpm test:e2e
+
+      - name: Enviar relatorio do Playwright
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio-playwright
+          path: testes/playwright-report/
+          retention-days: 7
+
+  carga:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Nao bloqueante nesta fase: ainda nao existe API para receber carga, entao o
+    # script falharia por falta de alvo. Torne bloqueante (remova continue-on-error e
+    # aponte BASE_URL para staging) quando o endpoint de horarios livres existir (Fase 1).
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: grafana/setup-k6-action@v1
+
+      - name: Fumaca de carga (k6)
+        env:
+          BASE_URL: ${{ vars.BASE_URL_CARGA || 'http://localhost:3333' }}
+        run: k6 run testes/carga/fumaca.ts
+
+  # Maestro (mobile): manual ate existir o app. Rodar localmente com
+  # `maestro test testes/mobile/fumaca.yaml` e validar a sintaxe com
+  # `pnpm --filter @marquei/testes validar:mobile`. Vira job quando houver build do app
+  # em emulador (Fase 1+).
