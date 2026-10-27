@@ -127,6 +127,16 @@ export class TemaDoEstabelecimento {
     validador.exigirPublicavel(this);
   }
 
+  /**
+   * Caminhos pontuados (ex.: `cores.primaria`, `raio`) dos campos que diferem de `anterior`.
+   * Sem tema anterior, todos os campos contam como alterados.
+   */
+  camposAlteradosEm(anterior: TemaDoEstabelecimento | null): readonly string[] {
+    const atuais = achatar(this.paraDados());
+    const antigos = anterior ? achatar(anterior.paraDados()) : new Map<string, unknown>();
+    return [...atuais].filter(([caminho, valor]) => antigos.get(caminho) !== valor).map(([c]) => c);
+  }
+
   paraDados(): DadosDoTema {
     return {
       cores: this.partes.cores.paraDados(),
@@ -143,4 +153,18 @@ export class TemaDoEstabelecimento {
   private com(alteracao: Partial<Partes>): TemaDoEstabelecimento {
     return new TemaDoEstabelecimento({ ...this.partes, ...alteracao });
   }
+}
+
+/** Folhas do objeto em caminho pontuado, na ordem de declaracao. */
+function achatar(valor: object, prefixo = ""): Map<string, unknown> {
+  const folhas = new Map<string, unknown>();
+  for (const [chave, item] of Object.entries(valor)) {
+    const caminho = prefixo ? `${prefixo}.${chave}` : chave;
+    if (typeof item === "object" && item !== null) {
+      for (const [c, v] of achatar(item, caminho)) folhas.set(c, v);
+    } else {
+      folhas.set(caminho, item);
+    }
+  }
+  return folhas;
 }

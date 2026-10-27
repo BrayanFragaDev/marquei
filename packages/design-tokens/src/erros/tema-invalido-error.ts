@@ -1,4 +1,4 @@
-import { ErroDeTema } from "./erro-de-tema";
+import { ErroDeDominio } from "@marquei/dominio";
 
 export interface ProblemaDeEsquema {
   readonly caminho: string;
@@ -6,9 +6,11 @@ export interface ProblemaDeEsquema {
 }
 
 /** A entrada nao respeita o esquema do tema (campo faltando, cor mal formada, opcao nao curada). */
-export class TemaInvalidoError extends ErroDeTema {
+export class TemaInvalidoError extends ErroDeDominio {
+  readonly codigo = "tema_invalido";
+
   constructor(readonly problemas: readonly ProblemaDeEsquema[]) {
     const detalhes = problemas.map((p) => `${p.caminho || "(raiz)"}: ${p.mensagem}`).join("; ");
-    super("tema_invalido", `Tema invalido. ${detalhes}`);
+    super(`Tema invalido. ${detalhes}`);
   }
 }

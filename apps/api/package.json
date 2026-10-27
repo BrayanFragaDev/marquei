@@ -29,6 +29,7 @@
     "unplugin-swc": "^2.0.0"
   },
   "dependencies": {
+    "@marquei/design-tokens": "workspace:*",
     "@marquei/dominio": "workspace:*",
     "@nestjs/common": "^12.3.1",
     "@nestjs/core": "^12.3.1",

@@ -42,3 +42,27 @@ luminosidade, em passos de 0,5%, até atingir a razão.
 2. Se for família tipográfica, mantenha entre 4 e 6 e inclua fallback genérico na pilha.
 3. Rode `pnpm --filter @marquei/design-tokens test`: o teste combinatório cobre a nova opção.
 4. Avise AC e CE para implementarem o preset de cabeçalho/cartão ou carregarem a fonte.
+
+## Tema na API (rascunho e publicado)
+
+O módulo `apps/api/src/modulos/tema` usa estas peças do pacote (regras no domínio, casos de uso
+só orquestram):
+
+- `AutorDaAlteracao.deSessao(sessao)`: só dono e gestor viram autor; qualquer outro papel falha com
+  `SemPermissaoParaAlterarTemaError`. O estabelecimento vem sempre da sessão (token).
+- `TemaRepositorio` e `VerticalDoEstabelecimento`: portas de persistência (implementação Postgres
+  na API; `TemaRepositorioEmMemoria` e `VerticalDoEstabelecimentoFixa` para testes).
+- `LeitorDeTemas`: o cliente vê só o publicado (ou o padrão da vertical, versão 0); o editor parte
+  do rascunho, depois do publicado, depois do padrão.
+- `RegistradorDeRascunho`: grava o rascunho e emite `tema_rascunho_salvo` com os campos alterados
+  (`TemaDoEstabelecimento.camposAlteradosEm`).
+- Publicar: `tema.validarParaPublicacao(validador)` (WCAG AA) e `TemaPublicado` com
+  `validador.menorRazao(tema)`.
+- `catalogoDeOpcoes()`: opções curadas para o editor (`GET /v1/tema/opcoes`).
+
+Erros do pacote herdam `ErroDeDominio` (de `@marquei/dominio`) com `codigo` estável:
+`tema_invalido`, `cor_invalida`, `contraste_insuficiente`, `sem_permissao_para_alterar_tema`,
+`rascunho_de_tema_nao_encontrado`, `versao_de_tema_invalida`.
+
+Eventos (`tema_rascunho_salvo`, `tema_publicado`) levam `versao`, `ator_tipo`, `ator_id` e,
+respectivamente, `campos_alterados` e `contraste_minimo`; nunca dado pessoal.

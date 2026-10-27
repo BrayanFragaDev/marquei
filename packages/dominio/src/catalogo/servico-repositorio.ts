@@ -1,10 +1,10 @@
 import type { EstabelecimentoId } from "../compartilhado/identificador";
+import type { Servico } from "./servico";
 import type { ServicoId } from "./servico-id";
-import type { ServicoLeitura } from "./servico-leitura";
 
 /** Porta de persistencia do catalogo de servicos. Sempre escopada por estabelecimento. */
 export interface ServicoRepositorio {
-  listarAtivos(estabelecimentoId: EstabelecimentoId): Promise<readonly ServicoLeitura[]>;
+  listarAtivos(estabelecimentoId: EstabelecimentoId): Promise<readonly Servico[]>;
   /** Devolve `null` se nao existir no estabelecimento (inclusive se pertencer a outro). */
-  obterPorId(estabelecimentoId: EstabelecimentoId, id: ServicoId): Promise<ServicoLeitura | null>;
+  obterPorId(estabelecimentoId: EstabelecimentoId, id: ServicoId): Promise<Servico | null>;
 }

@@ -99,10 +99,216 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/v1/tema": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Tema publicado do estabelecimento da sessao
+     * @description Qualquer sessao do estabelecimento (inclusive cliente final) le o tema publicado. Nunca
+     *     devolve rascunho. Enquanto nada foi publicado, devolve o padrao da vertical
+     *     (`origem: padrao`, `versao: 0`).
+     */
+    get: operations["obterTemaPublicado"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/tema/opcoes": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Opcoes curadas disponiveis para montar um tema
+     * @description Familias tipograficas, raios, densidades, presets, campos de cor e contraste minimo.
+     */
+    get: operations["listarOpcoesDeTema"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/tema/rascunho": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Ponto de partida do editor (dono ou gestor)
+     * @description Devolve o rascunho salvo (`origem: rascunho`); sem rascunho, o publicado
+     *     (`origem: publicado`); sem ambos, o padrao da vertical (`origem: padrao`, `versao: 0`).
+     */
+    get: operations["obterRascunhoDoTema"];
+    /**
+     * Salva o rascunho do tema (dono ou gestor)
+     * @description Aceita contraste abaixo de AA: so a publicacao exige. Nao altera o tema publicado.
+     *     Emite `tema_rascunho_salvo`.
+     */
+    put: operations["salvarRascunhoDoTema"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/tema/rascunho/restaurar-padrao": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Substitui o rascunho pelo tema padrao da vertical (dono ou gestor)
+     * @description Nao altera o tema publicado. Emite `tema_rascunho_salvo`.
+     */
+    post: operations["restaurarTemaPadraoDaVertical"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/tema/publicar": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Publica o rascunho (dono ou gestor)
+     * @description Exige contraste WCAG AA. Se reprovar, responde 422 com a cor sugerida por campo e o tema
+     *     publicado permanece como estava. Emite `tema_publicado`.
+     */
+    post: operations["publicarTema"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
+    /** @example #2457c5 */
+    CorHex: string;
+    TermoDoVocabulario: {
+      singular: string;
+      plural: string;
+    };
+    /** @description Tokens do tema (esquema de `packages/design-tokens`). So opcoes curadas. */
+    TemaTokens: {
+      cores: {
+        primaria: components["schemas"]["CorHex"];
+        textoSobrePrimaria: components["schemas"]["CorHex"];
+        apoio: components["schemas"]["CorHex"];
+        fundo: components["schemas"]["CorHex"];
+        superficie: components["schemas"]["CorHex"];
+        texto: components["schemas"]["CorHex"];
+        textoSuave: components["schemas"]["CorHex"];
+      };
+      /** @enum {string} */
+      familia: "inter" | "poppins" | "montserrat" | "playfair-display" | "roboto-slab";
+      /** @enum {string} */
+      raio: "reto" | "suave" | "arredondado";
+      /** @enum {string} */
+      densidade: "compacta" | "confortavel";
+      /** @enum {string} */
+      cabecalho: "simples" | "centralizado" | "capa";
+      /** @enum {string} */
+      cartaoDeServico: "lista" | "destaque" | "grade";
+      textos: {
+        boasVindas: string;
+        confirmacao: string;
+      };
+      vocabulario: {
+        profissional: components["schemas"]["TermoDoVocabulario"];
+        servico: components["schemas"]["TermoDoVocabulario"];
+        agendamento: components["schemas"]["TermoDoVocabulario"];
+      };
+    };
+    RespostaDeTema: {
+      /** @description Versao do estado devolvido. 0 = padrao da vertical, nunca salvo. */
+      versao: number;
+      atualizadoEm: components["schemas"]["Instante"] | null;
+      /** @enum {string} */
+      origem: "rascunho" | "publicado" | "padrao";
+      tokens: components["schemas"]["TemaTokens"];
+    };
+    OpcoesDeTema: {
+      familias: {
+        id: string;
+        nome: string;
+        pilhaCss: string;
+      }[];
+      raios: {
+        id: string;
+        escala: {
+          campo: number;
+          botao: number;
+          cartao: number;
+        };
+      }[];
+      densidades: {
+        id: string;
+        espacamento: {
+          xs: number;
+          sm: number;
+          md: number;
+          lg: number;
+          xl: number;
+          alturaDoCampo: number;
+        };
+      }[];
+      cabecalhos: string[];
+      cartoesDeServico: string[];
+      camposDeCor: string[];
+      verticais: string[];
+      contrasteMinimo: {
+        /** @example 4.5 */
+        textoNormal: number;
+        /** @example 3 */
+        componente: number;
+      };
+    };
+    ErroDeTema: {
+      /**
+       * @example contraste_insuficiente
+       * @example tema_invalido
+       * @example sem_permissao_para_alterar_tema
+       */
+      codigo: string;
+      mensagem: string;
+      /** @description Por campo. Em `contraste_insuficiente`, `sugestao` traz a cor que passa em AA para o `campo` ajustavel; em `tema_invalido`, `campo` e o caminho pontuado do problema. */
+      detalhes?: {
+        campo: string;
+        codigo: string;
+        mensagem?: string;
+        sugestao?: components["schemas"]["CorHex"];
+      }[];
+    };
     Erro: {
       /**
        * @description Codigo estavel em snake_case. Use-o, nunca a mensagem, para decidir o comportamento.
@@ -188,6 +394,15 @@ export interface components {
     };
   };
   responses: {
+    /** @description Somente dono ou gestor alteram ou leem o rascunho (`sem_permissao_para_alterar_tema`); tenant divergente do token tambem responde 403 (`tenant_divergente`). */
+    SemPermissaoParaTema: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        "application/json": components["schemas"]["ErroDeTema"];
+      };
+    };
     /** @description Entrada invalida (`requisicao_invalida`, `identificador_invalido`). */
     RequisicaoInvalida: {
       headers: {
@@ -382,6 +597,167 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["Erro"];
+        };
+      };
+    };
+  };
+  obterTemaPublicado: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Tema publicado ou padrao da vertical. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["RespostaDeTema"];
+        };
+      };
+      401: components["responses"]["NaoAutenticado"];
+    };
+  };
+  listarOpcoesDeTema: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Opcoes curadas. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["OpcoesDeTema"];
+        };
+      };
+      401: components["responses"]["NaoAutenticado"];
+    };
+  };
+  obterRascunhoDoTema: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Tema para edicao. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["RespostaDeTema"];
+        };
+      };
+      401: components["responses"]["NaoAutenticado"];
+      403: components["responses"]["SemPermissaoParaTema"];
+    };
+  };
+  salvarRascunhoDoTema: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["TemaTokens"];
+      };
+    };
+    responses: {
+      /** @description Rascunho salvo. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["RespostaDeTema"];
+        };
+      };
+      /** @description Tema fora do esquema ou das opcoes curadas (`tema_invalido`). */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErroDeTema"];
+        };
+      };
+      401: components["responses"]["NaoAutenticado"];
+      403: components["responses"]["SemPermissaoParaTema"];
+    };
+  };
+  restaurarTemaPadraoDaVertical: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Rascunho restaurado. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["RespostaDeTema"];
+        };
+      };
+      401: components["responses"]["NaoAutenticado"];
+      403: components["responses"]["SemPermissaoParaTema"];
+    };
+  };
+  publicarTema: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Tema publicado. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["RespostaDeTema"];
+        };
+      };
+      401: components["responses"]["NaoAutenticado"];
+      403: components["responses"]["SemPermissaoParaTema"];
+      /** @description Nao ha rascunho salvo (`rascunho_de_tema_nao_encontrado`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErroDeTema"];
+        };
+      };
+      /** @description Contraste abaixo de AA (`contraste_insuficiente`), com sugestoes em `detalhes`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErroDeTema"];
         };
       };
     };
