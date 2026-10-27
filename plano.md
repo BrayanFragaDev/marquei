@@ -587,10 +587,10 @@ Cada tarefa é pequena e tem verificação objetiva. Dono entre colchetes.
 - [ ] F0-24 Esqueleto do emissor de tokens do operador com audiência separada. Verifica: token de estabelecimento é recusado na rota do operador.
 
 ### 11.4 Design tokens [DS]
-- [ ] F0-25 Definir tipo `TemaDoEstabelecimento` e valores padrão por vertical. Verifica: typecheck e snapshot dos padrões.
-- [ ] F0-26 Implementar o validador de contraste WCAG AA com sugestão de correção. Verifica: casos conhecidos (preto/branco = 21:1; cinza claro sobre branco reprova).
-- [ ] F0-27 Gerar `paraVariaveisCss` e `paraTemaNativo`. Verifica: snapshot de ambos para dois temas diferentes.
-- [ ] F0-28 Teste combinatório de todas as combinações de preset, fonte e raio. Verifica: nenhuma combinação gera erro.
+- [x] F0-25 Definir tipo `TemaDoEstabelecimento` e valores padrão por vertical. Verifica: typecheck e snapshot dos padrões.
+- [x] F0-26 Implementar o validador de contraste WCAG AA com sugestão de correção. Verifica: casos conhecidos (preto/branco = 21:1; cinza claro sobre branco reprova).
+- [x] F0-27 Gerar `paraVariaveisCss` e `paraTemaNativo`. Verifica: snapshot de ambos para dois temas diferentes.
+- [x] F0-28 Teste combinatório de todas as combinações de preset, fonte e raio. Verifica: nenhuma combinação gera erro.
 
 ### 11.5 Contratos e qualidade [BN, NC, QA]
 - [ ] F0-29 [BN] Publicar OpenAPI inicial (estabelecimento, serviços, horários livres, agendamento) e script `gerar:api-client`. Verifica: cliente gerado compila.
