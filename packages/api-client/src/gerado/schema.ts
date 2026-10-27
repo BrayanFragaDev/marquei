@@ -3,6 +3,28 @@
 // NAO EDITE A MAO: altere o OpenAPI e regere.
 
 export interface paths {
+  "/v1/auth/login": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Login de dono, gestor ou profissional por e-mail e senha
+     * @description Rota publica (com rate limit e bloqueio por tentativas). O estabelecimento e informado pelo
+     *     SLUG publico; o tenant (id) do token e resolvido no servidor. Credenciais invalidas,
+     *     e-mail inexistente e slug inexistente respondem exatamente igual (`credenciais_invalidas`).
+     */
+    post: operations["entrar"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/v1/estabelecimentos/{slug}": {
     parameters: {
       query?: never;
@@ -12,7 +34,8 @@ export interface paths {
     };
     /**
      * Dados publicos do estabelecimento e tema publicado
-     * @description Rota publica (com rate limit). Nunca devolve tema em rascunho.
+     * @description Rota publica (com rate limit). Nunca devolve tema em rascunho; `tema` e nulo enquanto nenhum
+     *     tema foi publicado. Estabelecimento suspenso ou encerrado responde 404, igual a inexistente.
      */
     get: operations["obterEstabelecimentoPorSlug"];
     put?: never;
@@ -73,7 +96,8 @@ export interface paths {
     put?: never;
     /**
      * Cria um agendamento para o cliente autenticado
-     * @description O cliente final e o estabelecimento vem do token.
+     * @description O cliente final e o estabelecimento vem do token; so o papel `cliente_final` agenda
+     *     (`acao_nao_permitida` para os demais). O horario precisa estar entre os livres do dia.
      */
     post: operations["criarAgendamento"];
     delete?: never;
@@ -91,7 +115,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Cancela um agendamento dentro da politica de cancelamento */
+    /**
+     * Cancela um agendamento dentro da politica de cancelamento
+     * @description O cliente so cancela os proprios agendamentos; o de outro cliente (ou de outro
+     *     estabelecimento) responde 404.
+     */
     post: operations["cancelarAgendamento"];
     delete?: never;
     options?: never;
@@ -324,6 +352,30 @@ export interface components {
         codigo: string;
       }[];
     };
+    ErroDeBloqueio: {
+      codigo: string;
+      mensagem: string;
+      bloqueadoAte: components["schemas"]["Instante"];
+    };
+    LoginEntrada: {
+      /** @description Slug publico do estabelecimento. */
+      estabelecimento: string;
+      /** Format: email */
+      email: string;
+      /** Format: password */
+      senha: string;
+    };
+    LoginResposta: {
+      /** @description JWT para o cabecalho `Authorization: Bearer`. */
+      token: string;
+      expiraEm: components["schemas"]["Instante"];
+      /** Format: uuid */
+      usuarioId: string;
+      /** @enum {string} */
+      papel: "profissional" | "gestor" | "dono";
+      /** Format: uuid */
+      estabelecimentoId: string;
+    };
     /**
      * Format: date-time
      * @description ISO 8601 em UTC.
@@ -337,13 +389,27 @@ export interface components {
       id: string;
       slug: string;
       nome: string;
+      /** @description Slug da vertical, como barbearia ou manicure. */
       vertical: string;
+      /**
+       * @description Termos do segmento (profissional, servico, cliente, estabelecimento).
+       * @example {
+       *       "profissional": "barbeiro",
+       *       "servico": "servico",
+       *       "cliente": "cliente",
+       *       "estabelecimento": "barbearia"
+       *     }
+       */
+      vocabulario: {
+        [key: string]: string;
+      };
       /**
        * @description Fuso IANA.
        * @example America/Sao_Paulo
        */
       fusoHorario: string;
-      tema: components["schemas"]["TemaPublicado"];
+      /** @description Tema publicado; nulo enquanto nenhum foi publicado. */
+      tema: components["schemas"]["TemaPublicado"] | null;
     };
     /** @description Envelope provisorio do tema publicado. O esquema detalhado dos tokens pertence a `packages/design-tokens` (DS) e sera referenciado aqui quando acordado. */
     TemaPublicado: {
@@ -412,7 +478,16 @@ export interface components {
         "application/json": components["schemas"]["Erro"];
       };
     };
-    /** @description Token ausente, expirado ou invalido (`nao_autenticado`). */
+    /** @description Sem permissao: papel sem acesso a acao (`acao_nao_permitida`) ou tenant informado pelo cliente que diverge do token (`tenant_divergente`). */
+    Proibido: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        "application/json": components["schemas"]["Erro"];
+      };
+    };
+    /** @description Token ausente, expirado ou invalido (`sessao_invalida` ou `sessao_expirada`). */
     NaoAutenticado: {
       headers: {
         [name: string]: unknown;
@@ -447,6 +522,49 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+  entrar: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["LoginEntrada"];
+      };
+    };
+    responses: {
+      /** @description Sessao emitida. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["LoginResposta"];
+        };
+      };
+      400: components["responses"]["RequisicaoInvalida"];
+      /** @description Credenciais invalidas (`credenciais_invalidas`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Erro"];
+        };
+      };
+      /** @description Conta bloqueada por tentativas (`conta_bloqueada_por_tentativas`). */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErroDeBloqueio"];
+        };
+      };
+    };
+  };
   obterEstabelecimentoPorSlug: {
     parameters: {
       query?: never;
@@ -467,6 +585,7 @@ export interface operations {
           "application/json": components["schemas"]["EstabelecimentoPublico"];
         };
       };
+      400: components["responses"]["RequisicaoInvalida"];
       404: components["responses"]["NaoEncontrado"];
       429: components["responses"]["MuitasRequisicoes"];
     };
@@ -520,6 +639,15 @@ export interface operations {
       400: components["responses"]["RequisicaoInvalida"];
       401: components["responses"]["NaoAutenticado"];
       404: components["responses"]["NaoEncontrado"];
+      /** @description Profissional nao realiza o servico (`profissional_nao_executa_servico`). */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Erro"];
+        };
+      };
     };
   };
   criarAgendamento: {
@@ -546,6 +674,7 @@ export interface operations {
       };
       400: components["responses"]["RequisicaoInvalida"];
       401: components["responses"]["NaoAutenticado"];
+      403: components["responses"]["Proibido"];
       404: components["responses"]["NaoEncontrado"];
       /** @description Horario ja ocupado (`horario_indisponivel`). */
       409: {
@@ -588,10 +717,12 @@ export interface operations {
           "application/json": components["schemas"]["Agendamento"];
         };
       };
+      400: components["responses"]["RequisicaoInvalida"];
       401: components["responses"]["NaoAutenticado"];
+      403: components["responses"]["Proibido"];
       404: components["responses"]["NaoEncontrado"];
-      /** @description Nao cancelavel (`agendamento_nao_cancelavel`) ou fora do prazo (`fora_do_prazo_de_cancelamento`). */
-      422: {
+      /** @description Nao cancelavel (`agendamento_nao_cancelavel`) ou fora do prazo (`fora_do_prazo_de_cancelamento`). O prazo vale so para o cliente; dono, gestor e profissional cancelam a qualquer momento. */
+      409: {
         headers: {
           [name: string]: unknown;
         };
