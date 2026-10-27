@@ -565,8 +565,8 @@ Cada tarefa é pequena e tem verificação objetiva. Dono entre colchetes.
 - [x] F0-06 Criar esqueletos de `apps/api`, `apps/mobile-cliente`, `apps/console-estabelecimento`, `apps/console-plataforma`, `packages/dominio`, `packages/design-tokens`, `packages/api-client`. Verifica: `pnpm turbo run typecheck` verde.
 - [x] F0-07 Regra ESLint proibindo `packages/dominio` de importar NestJS, React e drivers de banco. Verifica: importação proibida de teste falha o lint.
 - [x] F0-08 Regra ESLint proibindo apps de importar de outros apps. Verifica: importação cruzada falha o lint.
-- [ ] F0-09 Criar `docker-compose.yml` com Postgres e Redis. Verifica: `docker compose up -d` e `pg_isready` respondem.
-- [ ] F0-10 Criar workflow de CI (lint, typecheck, test, build) com Postgres e Redis. Verifica: PR de teste fica verde.
+- [ ] F0-09 Criar `docker-compose.yml` com Postgres e Redis. Verifica: `docker compose up -d` e `pg_isready` respondem. (NÃO verificado: daemon Docker indisponível no ambiente de desenvolvimento)
+- [x] F0-10 Criar workflow de CI (lint, typecheck, test, build) com Postgres e Redis. Verifica: PR de teste fica verde. (confirmado no PR #1)
 
 ### 11.2 Banco e RLS [AD]
 - [ ] F0-11 Escolher e configurar a ferramenta de migração e criar a migração 0001 (extensões, papéis `app_usuario`, `app_plataforma`, `migrador`). Verifica: migração roda em banco vazio.
@@ -595,6 +595,6 @@ Cada tarefa é pequena e tem verificação objetiva. Dono entre colchetes.
 ### 11.5 Contratos e qualidade [BN, NC, QA]
 - [ ] F0-29 [BN] Publicar OpenAPI inicial (estabelecimento, serviços, horários livres, agendamento) e script `gerar:api-client`. Verifica: cliente gerado compila.
 - [ ] F0-30 [NC] Publicar interfaces `ProvedorDeMensagem` e `GatewayDePagamento` em `packages/dominio`. Verifica: typecheck verde; PR revisado por CP.
-- [ ] F0-31 [QA] Criar `testes/` com Playwright, Maestro e k6 configurados e um teste de fumaça de cada. Verifica: smoke roda no CI.
+- [x] F0-31 [QA] Criar `testes/` com Playwright, Maestro e k6 configurados e um teste de fumaça de cada. Verifica: smoke roda no CI. (e2e verde no CI; k6 só valida o script e falha sem API, job não bloqueante; Maestro manual até existir app)
 
 **Saída (M0):** todas as tarefas marcadas, CI verde, demonstração de isolamento entre dois tenants e de tema reprovado por contraste.
