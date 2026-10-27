@@ -1,0 +1,121 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`geradores > snapshot do CSS e do tema nativo de dois temas diferentes > css-barbearia 1`] = `
+":root {
+  --cor-primaria: #d4a24c;
+  --cor-texto-sobre-primaria: #14161a;
+  --cor-apoio: #3a3f4a;
+  --cor-fundo: #14161a;
+  --cor-superficie: #1f2228;
+  --cor-texto: #f2f2f0;
+  --cor-texto-suave: #b4b8c0;
+  --fonte-familia: "Roboto Slab", Georgia, "Times New Roman", serif;
+  --raio-campo: 0px;
+  --raio-botao: 0px;
+  --raio-cartao: 0px;
+  --espaco-xs: 2px;
+  --espaco-sm: 6px;
+  --espaco-md: 12px;
+  --espaco-lg: 16px;
+  --espaco-xl: 24px;
+  --altura-campo: 40px;
+  --preset-cabecalho: simples;
+  --preset-cartao-servico: lista;
+}
+"
+`;
+
+exports[`geradores > snapshot do CSS e do tema nativo de dois temas diferentes > css-estetica 1`] = `
+":root {
+  --cor-primaria: #2a7461;
+  --cor-texto-sobre-primaria: #ffffff;
+  --cor-apoio: #cfe8e0;
+  --cor-fundo: #f4f8f6;
+  --cor-superficie: #ffffff;
+  --cor-texto: #1b2a26;
+  --cor-texto-suave: #4c625b;
+  --fonte-familia: "Playfair Display", Georgia, "Times New Roman", serif;
+  --raio-campo: 6px;
+  --raio-botao: 8px;
+  --raio-cartao: 12px;
+  --espaco-xs: 4px;
+  --espaco-sm: 8px;
+  --espaco-md: 16px;
+  --espaco-lg: 24px;
+  --espaco-xl: 32px;
+  --altura-campo: 48px;
+  --preset-cabecalho: centralizado;
+  --preset-cartao-servico: grade;
+}
+"
+`;
+
+exports[`geradores > snapshot do CSS e do tema nativo de dois temas diferentes > nativo-barbearia 1`] = `
+{
+  "cores": {
+    "apoio": "#3a3f4a",
+    "fundo": "#14161a",
+    "primaria": "#d4a24c",
+    "superficie": "#1f2228",
+    "texto": "#f2f2f0",
+    "textoSobrePrimaria": "#14161a",
+    "textoSuave": "#b4b8c0",
+  },
+  "espacamentos": {
+    "alturaDoCampo": 40,
+    "lg": 16,
+    "md": 12,
+    "sm": 6,
+    "xl": 24,
+    "xs": 2,
+  },
+  "fonte": {
+    "alternativa": "Georgia",
+    "familia": "Roboto Slab",
+  },
+  "presets": {
+    "cabecalho": "simples",
+    "cartaoDeServico": "lista",
+  },
+  "raios": {
+    "botao": 0,
+    "campo": 0,
+    "cartao": 0,
+  },
+}
+`;
+
+exports[`geradores > snapshot do CSS e do tema nativo de dois temas diferentes > nativo-estetica 1`] = `
+{
+  "cores": {
+    "apoio": "#cfe8e0",
+    "fundo": "#f4f8f6",
+    "primaria": "#2a7461",
+    "superficie": "#ffffff",
+    "texto": "#1b2a26",
+    "textoSobrePrimaria": "#ffffff",
+    "textoSuave": "#4c625b",
+  },
+  "espacamentos": {
+    "alturaDoCampo": 48,
+    "lg": 24,
+    "md": 16,
+    "sm": 8,
+    "xl": 32,
+    "xs": 4,
+  },
+  "fonte": {
+    "alternativa": "Georgia",
+    "familia": "Playfair Display",
+  },
+  "presets": {
+    "cabecalho": "centralizado",
+    "cartaoDeServico": "grade",
+  },
+  "raios": {
+    "botao": 8,
+    "campo": 6,
+    "cartao": 12,
+  },
+}
+`;

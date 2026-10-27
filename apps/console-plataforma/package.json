@@ -1,0 +1,15 @@
+{
+  "name": "@marquei/console-plataforma",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Console web do operador da plataforma (Next.js). Aplicacao separada: dominio, deploy e autenticacao proprios.",
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "devDependencies": {
+    "@marquei/config": "workspace:*"
+  }
+}

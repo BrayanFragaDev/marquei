@@ -1,0 +1,20 @@
+{
+  "name": "@marquei/testes",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Testes e2e, de carga e de seguranca. Dono: subagente qa-seguranca.",
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p carga/tsconfig.json",
+    "test": "vitest run --passWithNoTests dados",
+    "test:e2e": "playwright test",
+    "validar:mobile": "node mobile/validar-fluxos.mjs",
+    "carga:fumaca": "k6 run carga/fumaca.ts"
+  },
+  "devDependencies": {
+    "@marquei/config": "workspace:*",
+    "@playwright/test": "^1.64.1",
+    "@types/k6": "^2.3.1"
+  }
+}

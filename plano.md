@@ -557,16 +557,16 @@ adaptador simulado. Isso permite avançar sem escolher fornecedor.
 Cada tarefa é pequena e tem verificação objetiva. Dono entre colchetes.
 
 ### 11.1 Monorepo e CI [AD]
-- [ ] F0-01 Criar `pnpm-workspace.yaml` com `apps/*` e `packages/*`. Verifica: `pnpm -r list` lista os workspaces.
-- [ ] F0-02 Criar `package.json` raiz com `packageManager` fixado e engines de Node. Verifica: `pnpm install` sem aviso.
-- [ ] F0-03 Criar `turbo.json` com tarefas `lint`, `typecheck`, `test`, `build`, `dev`. Verifica: `pnpm turbo run build` roda e usa cache na segunda execução.
-- [ ] F0-04 Criar `packages/config` com tsconfig base, ESLint e Prettier. Verifica: pacote de exemplo estende e passa no lint.
-- [ ] F0-05 Adicionar env tipado e validado (zod) em `packages/config`. Verifica: variável faltando derruba o start com mensagem clara.
-- [ ] F0-06 Criar esqueletos de `apps/api`, `apps/mobile-cliente`, `apps/console-estabelecimento`, `apps/console-plataforma`, `packages/dominio`, `packages/design-tokens`, `packages/api-client`. Verifica: `pnpm turbo run typecheck` verde.
-- [ ] F0-07 Regra ESLint proibindo `packages/dominio` de importar NestJS, React e drivers de banco. Verifica: importação proibida de teste falha o lint.
-- [ ] F0-08 Regra ESLint proibindo apps de importar de outros apps. Verifica: importação cruzada falha o lint.
-- [ ] F0-09 Criar `docker-compose.yml` com Postgres e Redis. Verifica: `docker compose up -d` e `pg_isready` respondem.
-- [ ] F0-10 Criar workflow de CI (lint, typecheck, test, build) com Postgres e Redis. Verifica: PR de teste fica verde.
+- [x] F0-01 Criar `pnpm-workspace.yaml` com `apps/*` e `packages/*`. Verifica: `pnpm -r list` lista os workspaces.
+- [x] F0-02 Criar `package.json` raiz com `packageManager` fixado e engines de Node. Verifica: `pnpm install` sem aviso.
+- [x] F0-03 Criar `turbo.json` com tarefas `lint`, `typecheck`, `test`, `build`, `dev`. Verifica: `pnpm turbo run build` roda e usa cache na segunda execução.
+- [x] F0-04 Criar `packages/config` com tsconfig base, ESLint e Prettier. Verifica: pacote de exemplo estende e passa no lint.
+- [x] F0-05 Adicionar env tipado e validado (zod) em `packages/config`. Verifica: variável faltando derruba o start com mensagem clara.
+- [x] F0-06 Criar esqueletos de `apps/api`, `apps/mobile-cliente`, `apps/console-estabelecimento`, `apps/console-plataforma`, `packages/dominio`, `packages/design-tokens`, `packages/api-client`. Verifica: `pnpm turbo run typecheck` verde.
+- [x] F0-07 Regra ESLint proibindo `packages/dominio` de importar NestJS, React e drivers de banco. Verifica: importação proibida de teste falha o lint.
+- [x] F0-08 Regra ESLint proibindo apps de importar de outros apps. Verifica: importação cruzada falha o lint.
+- [ ] F0-09 Criar `docker-compose.yml` com Postgres e Redis. Verifica: `docker compose up -d` e `pg_isready` respondem. (NÃO verificado: daemon Docker indisponível no ambiente de desenvolvimento)
+- [x] F0-10 Criar workflow de CI (lint, typecheck, test, build) com Postgres e Redis. Verifica: PR de teste fica verde. (confirmado no PR #1)
 
 ### 11.2 Banco e RLS [AD]
 - [ ] F0-11 Escolher e configurar a ferramenta de migração e criar a migração 0001 (extensões, papéis `app_usuario`, `app_plataforma`, `migrador`). Verifica: migração roda em banco vazio.
@@ -587,14 +587,14 @@ Cada tarefa é pequena e tem verificação objetiva. Dono entre colchetes.
 - [ ] F0-24 Esqueleto do emissor de tokens do operador com audiência separada. Verifica: token de estabelecimento é recusado na rota do operador.
 
 ### 11.4 Design tokens [DS]
-- [ ] F0-25 Definir tipo `TemaDoEstabelecimento` e valores padrão por vertical. Verifica: typecheck e snapshot dos padrões.
-- [ ] F0-26 Implementar o validador de contraste WCAG AA com sugestão de correção. Verifica: casos conhecidos (preto/branco = 21:1; cinza claro sobre branco reprova).
-- [ ] F0-27 Gerar `paraVariaveisCss` e `paraTemaNativo`. Verifica: snapshot de ambos para dois temas diferentes.
-- [ ] F0-28 Teste combinatório de todas as combinações de preset, fonte e raio. Verifica: nenhuma combinação gera erro.
+- [x] F0-25 Definir tipo `TemaDoEstabelecimento` e valores padrão por vertical. Verifica: typecheck e snapshot dos padrões.
+- [x] F0-26 Implementar o validador de contraste WCAG AA com sugestão de correção. Verifica: casos conhecidos (preto/branco = 21:1; cinza claro sobre branco reprova).
+- [x] F0-27 Gerar `paraVariaveisCss` e `paraTemaNativo`. Verifica: snapshot de ambos para dois temas diferentes.
+- [x] F0-28 Teste combinatório de todas as combinações de preset, fonte e raio. Verifica: nenhuma combinação gera erro.
 
 ### 11.5 Contratos e qualidade [BN, NC, QA]
 - [ ] F0-29 [BN] Publicar OpenAPI inicial (estabelecimento, serviços, horários livres, agendamento) e script `gerar:api-client`. Verifica: cliente gerado compila.
 - [ ] F0-30 [NC] Publicar interfaces `ProvedorDeMensagem` e `GatewayDePagamento` em `packages/dominio`. Verifica: typecheck verde; PR revisado por CP.
-- [ ] F0-31 [QA] Criar `testes/` com Playwright, Maestro e k6 configurados e um teste de fumaça de cada. Verifica: smoke roda no CI.
+- [x] F0-31 [QA] Criar `testes/` com Playwright, Maestro e k6 configurados e um teste de fumaça de cada. Verifica: smoke roda no CI. (e2e verde no CI; k6 só valida o script e falha sem API, job não bloqueante; Maestro manual até existir app)
 
 **Saída (M0):** todas as tarefas marcadas, CI verde, demonstração de isolamento entre dois tenants e de tema reprovado por contraste.

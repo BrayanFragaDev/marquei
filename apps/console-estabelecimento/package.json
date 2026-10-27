@@ -1,0 +1,15 @@
+{
+  "name": "@marquei/console-estabelecimento",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Console web do dono/gestor do estabelecimento (Next.js). O Next entra com o subagente console-estabelecimento.",
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "devDependencies": {
+    "@marquei/config": "workspace:*"
+  }
+}

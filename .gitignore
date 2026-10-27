@@ -1,0 +1,22 @@
+# dependencias e saidas de build
+node_modules/
+dist/
+.next/
+.expo/
+.turbo/
+coverage/
+
+# ambiente local (nunca commitar segredos)
+.env
+.env.*
+!.env.example
+
+# testes
+playwright-report/
+test-results/
+
+# sistema e editores
+.DS_Store
+*.log
+.idea/
+.vscode/
