@@ -1,0 +1,30 @@
+{
+  "name": "@marquei/ui",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Componentes React de apresentacao que consomem os design tokens (sem regra de negocio). Usados pelo app do cliente e pela pre-visualizacao do console.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "devDependencies": {
+    "@marquei/config": "workspace:*",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "jsdom": "^30.1.3"
+  },
+  "dependencies": {
+    "@marquei/design-tokens": "workspace:*",
+    "@marquei/dominio": "workspace:*",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  }
+}

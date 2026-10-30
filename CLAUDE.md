@@ -52,6 +52,7 @@ apps/
     src/modulos/<modulo>/  aplicacao/ (casos de uso), infra/ (repositórios, provedores), interface/ (controllers).
 packages/
   dominio/                 Classes de domínio puras (entidades, objetos de valor, erros, portas).
+  ui/                      Componentes React de apresentação (consomem tokens; sem regra de negócio). Compartilhados por app-cliente e pré-visualização do console.
   design-tokens/           Esquema, valores padrão e validação (contraste) dos temas.
   api-client/              Cliente tipado da API e DTOs compartilhados.
   config/                  tsconfig, eslint, prettier e env tipado.
