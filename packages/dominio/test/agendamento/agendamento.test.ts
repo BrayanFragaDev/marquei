@@ -5,6 +5,7 @@ import {
   AgendamentoNaoCancelavelError,
   AgendamentoNoPassadoError,
   ClienteFinalId,
+  Dinheiro,
   EstabelecimentoId,
   ForaDoPrazoDeCancelamentoError,
   Instante,
@@ -31,6 +32,8 @@ function dados(inicioIso: string) {
     profissionalId: ProfissionalId.de(umUuid(4)),
     clienteId: ClienteFinalId.de(umUuid(5)),
     janela: JanelaDeTempo.comDuracao(Instante.deIso(inicioIso), 30),
+    preco: Dinheiro.deCentavos(4500),
+    intervaloAposMinutos: 10,
   };
 }
 

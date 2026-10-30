@@ -16,6 +16,11 @@ export class ValidadorDeContraste {
     });
   }
 
+  /** Pior razao de contraste entre os pares verificados (indicador registrado ao publicar). */
+  menorRazao(tema: TemaDoEstabelecimento): number {
+    return Math.min(...this.pares.map((par) => par.razaoEm(tema.cores)));
+  }
+
   aprova(tema: TemaDoEstabelecimento): boolean {
     return this.validar(tema).length === 0;
   }

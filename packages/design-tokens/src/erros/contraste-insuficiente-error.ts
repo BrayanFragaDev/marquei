@@ -1,12 +1,13 @@
+import { ErroDeDominio } from "@marquei/dominio";
 import type { ProblemaDeContraste } from "../contraste/problema-de-contraste";
-import { ErroDeTema } from "./erro-de-tema";
 
 /** Publicacao recusada: ha pares de cores abaixo do minimo WCAG AA. Carrega as sugestoes. */
-export class ContrasteInsuficienteError extends ErroDeTema {
+export class ContrasteInsuficienteError extends ErroDeDominio {
+  readonly codigo = "contraste_insuficiente";
+
   constructor(readonly problemas: readonly ProblemaDeContraste[]) {
     const detalhes = problemas.map((p) => p.mensagem()).join(" ");
     super(
-      "contraste_insuficiente",
       `Contraste abaixo do minimo WCAG AA em ${problemas.length} par(es) de cores. ${detalhes}`,
     );
   }

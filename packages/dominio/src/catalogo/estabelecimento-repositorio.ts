@@ -1,12 +1,8 @@
 import type { EstabelecimentoId } from "../compartilhado/identificador";
 import type { EstabelecimentoLeitura } from "./estabelecimento-leitura";
-import type { Slug } from "./slug";
 
-/**
- * Porta de consulta do estabelecimento. Unica sem `EstabelecimentoId` obrigatorio na
- * busca por slug: e a resolucao publica que ANTECEDE o conhecimento do tenant.
- */
+/** Porta de consulta do estabelecimento do tenant corrente (a RLS vale alem do filtro). */
 export interface EstabelecimentoRepositorio {
-  obterPorSlug(slug: Slug): Promise<EstabelecimentoLeitura | null>;
+  /** Devolve `null` se o estabelecimento nao for o do tenant da transacao. */
   obterPorId(id: EstabelecimentoId): Promise<EstabelecimentoLeitura | null>;
 }

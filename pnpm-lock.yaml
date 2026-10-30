@@ -32,6 +32,9 @@ importers:
 
   apps/api:
     dependencies:
+      '@marquei/design-tokens':
+        specifier: workspace:*
+        version: link:../../packages/design-tokens
       '@marquei/dominio':
         specifier: workspace:*
         version: link:../../packages/dominio
@@ -133,6 +136,9 @@ importers:
 
   packages/design-tokens:
     dependencies:
+      '@marquei/dominio':
+        specifier: workspace:*
+        version: link:../dominio
       zod:
         specifier: ^4.6.7
         version: 4.6.7

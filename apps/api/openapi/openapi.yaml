@@ -3,7 +3,7 @@ info:
   title: Marquei API
   version: 0.1.0
   description: |
-    Contrato inicial da API (BN-1). Fonte unica para o cliente gerado em `packages/api-client`.
+    Contrato da API (BN-1, atualizado em BN-2). Fonte unica para o cliente gerado em `packages/api-client`.
 
     Convencoes:
     - O estabelecimento (tenant) NUNCA trafega em corpo, query, header ou rota autenticada:
@@ -16,16 +16,57 @@ servers:
   - url: http://localhost:3000
     description: Desenvolvimento local
 tags:
+  - name: identidade
   - name: estabelecimento
   - name: catalogo
   - name: agenda
+  - name: tema
 paths:
+  /v1/auth/login:
+    post:
+      tags: [identidade]
+      operationId: entrar
+      summary: Login de dono, gestor ou profissional por e-mail e senha
+      description: |
+        Rota publica (com rate limit e bloqueio por tentativas). O estabelecimento e informado pelo
+        SLUG publico; o tenant (id) do token e resolvido no servidor. Credenciais invalidas,
+        e-mail inexistente e slug inexistente respondem exatamente igual (`credenciais_invalidas`).
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginEntrada"
+      responses:
+        "200":
+          description: Sessao emitida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResposta"
+        "400":
+          $ref: "#/components/responses/RequisicaoInvalida"
+        "401":
+          description: Credenciais invalidas (`credenciais_invalidas`).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Erro"
+        "429":
+          description: Conta bloqueada por tentativas (`conta_bloqueada_por_tentativas`).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErroDeBloqueio"
   /v1/estabelecimentos/{slug}:
     get:
       tags: [estabelecimento]
       operationId: obterEstabelecimentoPorSlug
       summary: Dados publicos do estabelecimento e tema publicado
-      description: Rota publica (com rate limit). Nunca devolve tema em rascunho.
+      description: |
+        Rota publica (com rate limit). Nunca devolve tema em rascunho; `tema` e nulo enquanto nenhum
+        tema foi publicado. Estabelecimento suspenso ou encerrado responde 404, igual a inexistente.
       security: []
       parameters:
         - name: slug
@@ -41,6 +82,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/EstabelecimentoPublico"
+        "400":
+          $ref: "#/components/responses/RequisicaoInvalida"
         "404":
           $ref: "#/components/responses/NaoEncontrado"
         "429":
@@ -108,12 +151,20 @@ paths:
           $ref: "#/components/responses/NaoAutenticado"
         "404":
           $ref: "#/components/responses/NaoEncontrado"
+        "422":
+          description: "Profissional nao realiza o servico (`profissional_nao_executa_servico`)."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Erro"
   /v1/agendamentos:
     post:
       tags: [agenda]
       operationId: criarAgendamento
       summary: Cria um agendamento para o cliente autenticado
-      description: O cliente final e o estabelecimento vem do token.
+      description: |
+        O cliente final e o estabelecimento vem do token; so o papel `cliente_final` agenda
+        (`acao_nao_permitida` para os demais). O horario precisa estar entre os livres do dia.
       requestBody:
         required: true
         content:
@@ -131,6 +182,8 @@ paths:
           $ref: "#/components/responses/RequisicaoInvalida"
         "401":
           $ref: "#/components/responses/NaoAutenticado"
+        "403":
+          $ref: "#/components/responses/Proibido"
         "404":
           $ref: "#/components/responses/NaoEncontrado"
         "409":
@@ -152,6 +205,9 @@ paths:
       tags: [agenda]
       operationId: cancelarAgendamento
       summary: Cancela um agendamento dentro da politica de cancelamento
+      description: |
+        O cliente so cancela os proprios agendamentos; o de outro cliente (ou de outro
+        estabelecimento) responde 404.
       parameters:
         - name: id
           in: path
@@ -166,18 +222,153 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Agendamento"
+        "400":
+          $ref: "#/components/responses/RequisicaoInvalida"
         "401":
           $ref: "#/components/responses/NaoAutenticado"
+        "403":
+          $ref: "#/components/responses/Proibido"
         "404":
           $ref: "#/components/responses/NaoEncontrado"
-        "422":
+        "409":
           description: >-
             Nao cancelavel (`agendamento_nao_cancelavel`) ou fora do prazo
-            (`fora_do_prazo_de_cancelamento`).
+            (`fora_do_prazo_de_cancelamento`). O prazo vale so para o cliente; dono, gestor e
+            profissional cancelam a qualquer momento.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Erro"
+  /v1/tema:
+    get:
+      tags: [tema]
+      operationId: obterTemaPublicado
+      summary: Tema publicado do estabelecimento da sessao
+      description: |
+        Qualquer sessao do estabelecimento (inclusive cliente final) le o tema publicado. Nunca
+        devolve rascunho. Enquanto nada foi publicado, devolve o padrao da vertical
+        (`origem: padrao`, `versao: 0`).
+      responses:
+        "200":
+          description: Tema publicado ou padrao da vertical.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RespostaDeTema"
+        "401":
+          $ref: "#/components/responses/NaoAutenticado"
+  /v1/tema/opcoes:
+    get:
+      tags: [tema]
+      operationId: listarOpcoesDeTema
+      summary: Opcoes curadas disponiveis para montar um tema
+      description: Familias tipograficas, raios, densidades, presets, campos de cor e contraste minimo.
+      responses:
+        "200":
+          description: Opcoes curadas.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpcoesDeTema"
+        "401":
+          $ref: "#/components/responses/NaoAutenticado"
+  /v1/tema/rascunho:
+    get:
+      tags: [tema]
+      operationId: obterRascunhoDoTema
+      summary: Ponto de partida do editor (dono ou gestor)
+      description: |
+        Devolve o rascunho salvo (`origem: rascunho`); sem rascunho, o publicado
+        (`origem: publicado`); sem ambos, o padrao da vertical (`origem: padrao`, `versao: 0`).
+      responses:
+        "200":
+          description: Tema para edicao.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RespostaDeTema"
+        "401":
+          $ref: "#/components/responses/NaoAutenticado"
+        "403":
+          $ref: "#/components/responses/SemPermissaoParaTema"
+    put:
+      tags: [tema]
+      operationId: salvarRascunhoDoTema
+      summary: Salva o rascunho do tema (dono ou gestor)
+      description: |
+        Aceita contraste abaixo de AA: so a publicacao exige. Nao altera o tema publicado.
+        Emite `tema_rascunho_salvo`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TemaTokens"
+      responses:
+        "200":
+          description: Rascunho salvo.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RespostaDeTema"
+        "400":
+          description: "Tema fora do esquema ou das opcoes curadas (`tema_invalido`)."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErroDeTema"
+        "401":
+          $ref: "#/components/responses/NaoAutenticado"
+        "403":
+          $ref: "#/components/responses/SemPermissaoParaTema"
+  /v1/tema/rascunho/restaurar-padrao:
+    post:
+      tags: [tema]
+      operationId: restaurarTemaPadraoDaVertical
+      summary: Substitui o rascunho pelo tema padrao da vertical (dono ou gestor)
+      description: Nao altera o tema publicado. Emite `tema_rascunho_salvo`.
+      responses:
+        "200":
+          description: Rascunho restaurado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RespostaDeTema"
+        "401":
+          $ref: "#/components/responses/NaoAutenticado"
+        "403":
+          $ref: "#/components/responses/SemPermissaoParaTema"
+  /v1/tema/publicar:
+    post:
+      tags: [tema]
+      operationId: publicarTema
+      summary: Publica o rascunho (dono ou gestor)
+      description: |
+        Exige contraste WCAG AA. Se reprovar, responde 422 com a cor sugerida por campo e o tema
+        publicado permanece como estava. Emite `tema_publicado`.
+      responses:
+        "200":
+          description: Tema publicado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RespostaDeTema"
+        "401":
+          $ref: "#/components/responses/NaoAutenticado"
+        "403":
+          $ref: "#/components/responses/SemPermissaoParaTema"
+        "404":
+          description: Nao ha rascunho salvo (`rascunho_de_tema_nao_encontrado`).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErroDeTema"
+        "422":
+          description: Contraste abaixo de AA (`contraste_insuficiente`), com sugestoes em `detalhes`.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErroDeTema"
 components:
   securitySchemes:
     bearerAuth:
@@ -185,14 +376,30 @@ components:
       scheme: bearer
       bearerFormat: JWT
   responses:
+    SemPermissaoParaTema:
+      description: >-
+        Somente dono ou gestor alteram ou leem o rascunho (`sem_permissao_para_alterar_tema`);
+        tenant divergente do token tambem responde 403 (`tenant_divergente`).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErroDeTema"
     RequisicaoInvalida:
       description: "Entrada invalida (`requisicao_invalida`, `identificador_invalido`)."
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/Erro"
+    Proibido:
+      description: >-
+        Sem permissao: papel sem acesso a acao (`acao_nao_permitida`) ou tenant informado pelo
+        cliente que diverge do token (`tenant_divergente`).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Erro"
     NaoAutenticado:
-      description: Token ausente, expirado ou invalido (`nao_autenticado`).
+      description: Token ausente, expirado ou invalido (`sessao_invalida` ou `sessao_expirada`).
       content:
         application/json:
           schema:
@@ -212,6 +419,234 @@ components:
           schema:
             $ref: "#/components/schemas/Erro"
   schemas:
+    CorHex:
+      type: string
+      pattern: "^#[0-9a-fA-F]{6}$"
+      examples: ["#2457c5"]
+    TermoDoVocabulario:
+      type: object
+      required: [singular, plural]
+      additionalProperties: false
+      properties:
+        singular:
+          type: string
+          minLength: 1
+          maxLength: 30
+        plural:
+          type: string
+          minLength: 1
+          maxLength: 30
+    TemaTokens:
+      type: object
+      description: Tokens do tema (esquema de `packages/design-tokens`). So opcoes curadas.
+      required: [cores, familia, raio, densidade, cabecalho, cartaoDeServico, textos, vocabulario]
+      additionalProperties: false
+      properties:
+        cores:
+          type: object
+          required: [primaria, textoSobrePrimaria, apoio, fundo, superficie, texto, textoSuave]
+          additionalProperties: false
+          properties:
+            primaria:
+              $ref: "#/components/schemas/CorHex"
+            textoSobrePrimaria:
+              $ref: "#/components/schemas/CorHex"
+            apoio:
+              $ref: "#/components/schemas/CorHex"
+            fundo:
+              $ref: "#/components/schemas/CorHex"
+            superficie:
+              $ref: "#/components/schemas/CorHex"
+            texto:
+              $ref: "#/components/schemas/CorHex"
+            textoSuave:
+              $ref: "#/components/schemas/CorHex"
+        familia:
+          type: string
+          enum: [inter, poppins, montserrat, playfair-display, roboto-slab]
+        raio:
+          type: string
+          enum: [reto, suave, arredondado]
+        densidade:
+          type: string
+          enum: [compacta, confortavel]
+        cabecalho:
+          type: string
+          enum: [simples, centralizado, capa]
+        cartaoDeServico:
+          type: string
+          enum: [lista, destaque, grade]
+        textos:
+          type: object
+          required: [boasVindas, confirmacao]
+          additionalProperties: false
+          properties:
+            boasVindas:
+              type: string
+              minLength: 1
+              maxLength: 120
+            confirmacao:
+              type: string
+              minLength: 1
+              maxLength: 240
+        vocabulario:
+          type: object
+          required: [profissional, servico, agendamento]
+          additionalProperties: false
+          properties:
+            profissional:
+              $ref: "#/components/schemas/TermoDoVocabulario"
+            servico:
+              $ref: "#/components/schemas/TermoDoVocabulario"
+            agendamento:
+              $ref: "#/components/schemas/TermoDoVocabulario"
+    RespostaDeTema:
+      type: object
+      required: [versao, atualizadoEm, origem, tokens]
+      additionalProperties: false
+      properties:
+        versao:
+          type: integer
+          minimum: 0
+          description: Versao do estado devolvido. 0 = padrao da vertical, nunca salvo.
+        atualizadoEm:
+          oneOf:
+            - $ref: "#/components/schemas/Instante"
+            - type: "null"
+        origem:
+          type: string
+          enum: [rascunho, publicado, padrao]
+        tokens:
+          $ref: "#/components/schemas/TemaTokens"
+    OpcoesDeTema:
+      type: object
+      required:
+        [
+          familias,
+          raios,
+          densidades,
+          cabecalhos,
+          cartoesDeServico,
+          camposDeCor,
+          verticais,
+          contrasteMinimo,
+        ]
+      additionalProperties: false
+      properties:
+        familias:
+          type: array
+          items:
+            type: object
+            required: [id, nome, pilhaCss]
+            additionalProperties: false
+            properties:
+              id:
+                type: string
+              nome:
+                type: string
+              pilhaCss:
+                type: string
+        raios:
+          type: array
+          items:
+            type: object
+            required: [id, escala]
+            additionalProperties: false
+            properties:
+              id:
+                type: string
+              escala:
+                type: object
+                required: [campo, botao, cartao]
+                additionalProperties: false
+                properties:
+                  campo:
+                    type: integer
+                  botao:
+                    type: integer
+                  cartao:
+                    type: integer
+        densidades:
+          type: array
+          items:
+            type: object
+            required: [id, espacamento]
+            additionalProperties: false
+            properties:
+              id:
+                type: string
+              espacamento:
+                type: object
+                required: [xs, sm, md, lg, xl, alturaDoCampo]
+                additionalProperties: false
+                properties:
+                  xs:
+                    type: integer
+                  sm:
+                    type: integer
+                  md:
+                    type: integer
+                  lg:
+                    type: integer
+                  xl:
+                    type: integer
+                  alturaDoCampo:
+                    type: integer
+        cabecalhos:
+          type: array
+          items:
+            type: string
+        cartoesDeServico:
+          type: array
+          items:
+            type: string
+        camposDeCor:
+          type: array
+          items:
+            type: string
+        verticais:
+          type: array
+          items:
+            type: string
+        contrasteMinimo:
+          type: object
+          required: [textoNormal, componente]
+          additionalProperties: false
+          properties:
+            textoNormal:
+              type: number
+              examples: [4.5]
+            componente:
+              type: number
+              examples: [3]
+    ErroDeTema:
+      type: object
+      required: [codigo, mensagem]
+      additionalProperties: false
+      properties:
+        codigo:
+          type: string
+          examples: [contraste_insuficiente, tema_invalido, sem_permissao_para_alterar_tema]
+        mensagem:
+          type: string
+        detalhes:
+          type: array
+          description: >-
+            Por campo. Em `contraste_insuficiente`, `sugestao` traz a cor que passa em AA para o
+            `campo` ajustavel; em `tema_invalido`, `campo` e o caminho pontuado do problema.
+          items:
+            type: object
+            required: [campo, codigo]
+            additionalProperties: false
+            properties:
+              campo:
+                type: string
+              codigo:
+                type: string
+              mensagem:
+                type: string
+              sugestao:
+                $ref: "#/components/schemas/CorHex"
     Erro:
       type: object
       required: [codigo, mensagem]
@@ -236,6 +671,51 @@ components:
                 type: string
               codigo:
                 type: string
+    ErroDeBloqueio:
+      type: object
+      required: [codigo, mensagem, bloqueadoAte]
+      additionalProperties: false
+      properties:
+        codigo:
+          type: string
+        mensagem:
+          type: string
+        bloqueadoAte:
+          $ref: "#/components/schemas/Instante"
+    LoginEntrada:
+      type: object
+      required: [estabelecimento, email, senha]
+      additionalProperties: false
+      properties:
+        estabelecimento:
+          type: string
+          description: Slug publico do estabelecimento.
+          pattern: "^[a-z0-9](?:[a-z0-9-]{1,61})[a-z0-9]$"
+        email:
+          type: string
+          format: email
+        senha:
+          type: string
+          format: password
+    LoginResposta:
+      type: object
+      required: [token, expiraEm, usuarioId, papel, estabelecimentoId]
+      additionalProperties: false
+      properties:
+        token:
+          type: string
+          description: "JWT para o cabecalho `Authorization: Bearer`."
+        expiraEm:
+          $ref: "#/components/schemas/Instante"
+        usuarioId:
+          type: string
+          format: uuid
+        papel:
+          type: string
+          enum: [profissional, gestor, dono]
+        estabelecimentoId:
+          type: string
+          format: uuid
     Instante:
       type: string
       format: date-time
@@ -247,7 +727,7 @@ components:
       description: Valor em centavos de real.
     EstabelecimentoPublico:
       type: object
-      required: [id, slug, nome, vertical, fusoHorario, tema]
+      required: [id, slug, nome, vertical, vocabulario, fusoHorario, tema]
       additionalProperties: false
       properties:
         id:
@@ -259,12 +739,28 @@ components:
           type: string
         vertical:
           type: string
+          description: Slug da vertical, como barbearia ou manicure.
+        vocabulario:
+          type: object
+          description: Termos do segmento (profissional, servico, cliente, estabelecimento).
+          additionalProperties:
+            type: string
+          examples:
+            - {
+                profissional: barbeiro,
+                servico: servico,
+                cliente: cliente,
+                estabelecimento: barbearia,
+              }
         fusoHorario:
           type: string
           description: Fuso IANA.
           examples: [America/Sao_Paulo]
         tema:
-          $ref: "#/components/schemas/TemaPublicado"
+          description: Tema publicado; nulo enquanto nenhum foi publicado.
+          oneOf:
+            - $ref: "#/components/schemas/TemaPublicado"
+            - type: "null"
     TemaPublicado:
       type: object
       description: >-

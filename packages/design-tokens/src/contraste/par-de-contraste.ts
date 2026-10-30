@@ -13,6 +13,11 @@ export class ParDeContraste {
     readonly campoAjustavel: CampoDeCor,
   ) {}
 
+  /** Razao de contraste atual do par (sem julgar se atende o requisito). */
+  razaoEm(paleta: PaletaDeCores): number {
+    return paleta.obter(this.primeiroPlano).razaoDeContraste(paleta.obter(this.fundo));
+  }
+
   avaliar(paleta: PaletaDeCores): ProblemaDeContraste | null {
     const frente = paleta.obter(this.primeiroPlano);
     const atras = paleta.obter(this.fundo);

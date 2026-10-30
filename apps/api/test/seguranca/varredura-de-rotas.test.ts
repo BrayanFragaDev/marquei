@@ -7,7 +7,11 @@ import { SEGREDO_ESTABELECIMENTO, SEGREDO_PLATAFORMA } from "../identidade/supor
 import { auditarRotas } from "./varredura";
 
 /** Unica lista de rotas abertas ao mundo. Acrescentar aqui e uma decisao consciente de revisao. */
-const ROTAS_PUBLICAS_PERMITIDAS = ["GET /v1/saude", "POST /v1/auth/login"];
+const ROTAS_PUBLICAS_PERMITIDAS = [
+  "GET /v1/saude",
+  "POST /v1/auth/login",
+  "GET /v1/estabelecimentos/:slug",
+];
 
 describe("varredura de rotas (F0-23)", () => {
   let app: INestApplication;

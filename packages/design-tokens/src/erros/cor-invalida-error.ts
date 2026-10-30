@@ -1,8 +1,10 @@
-import { ErroDeTema } from "./erro-de-tema";
+import { ErroDeDominio } from "@marquei/dominio";
 
 /** Texto que nao esta no formato `#rrggbb`. */
-export class CorInvalidaError extends ErroDeTema {
+export class CorInvalidaError extends ErroDeDominio {
+  readonly codigo = "cor_invalida";
+
   constructor(readonly entrada: string) {
-    super("cor_invalida", `Cor invalida: "${entrada}". Use o formato #rrggbb.`);
+    super(`Cor invalida: "${entrada}". Use o formato #rrggbb.`);
   }
 }

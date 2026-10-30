@@ -12,7 +12,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests",
     "gerar": "node scripts/gerar.ts",
-    "gerar:verificar": "node scripts/gerar.ts --verificar"
+    "gerar:verificar": "node scripts/gerar.ts --verificar",
+    "mock": "node mock/iniciar.ts"
   },
   "devDependencies": {
     "@marquei/config": "workspace:*",

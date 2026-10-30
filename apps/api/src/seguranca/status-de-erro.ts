@@ -16,6 +16,9 @@ const POR_CODIGO: Readonly<Record<string, number>> = {
   agendamento_nao_cancelavel: 409,
   fora_do_prazo_de_cancelamento: 409,
   agendamento_no_passado: 422,
+  horario_indisponivel: 409,
+  acao_nao_permitida: 403,
+  dia_civil_invalido: 400,
   sem_transacao_com_tenant: 500,
 };
 
