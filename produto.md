@@ -135,5 +135,5 @@ folha de comissões; emissão de nota fiscal.
 1. Cliente final entra por link/QR do estabelecimento (`/{slug}`). **Decisão:** a plataforma é
    100% web, sem aplicativo nativo e sem lojas (Apple/Google). Um único app web com marca
    dinâmica; PWA instalável pela tela inicial; domínio próprio do estabelecimento como upsell Premium.
-2. Cobrança dos estabelecimentos via gateway nacional (Pix e cartão recorrente).
+2. Cobrança dos estabelecimentos via gateway nacional (Pix Automático e cartão recorrente), **só depois de validar com 1 ou 2 estabelecimentos** (piloto manual primeiro). Caminho em `plano.md`, seção 12.
 3. WhatsApp via API oficial (custo por conversa repassado ao plano Pro/Premium).

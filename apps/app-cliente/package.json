@@ -5,6 +5,9 @@
   "type": "module",
   "description": "App web do cliente final e modo profissional (Next.js, PWA mobile-first). 100% web.",
   "scripts": {
+    "dev": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start --port 3000",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests"
@@ -23,6 +26,7 @@
     "@marquei/api-client": "workspace:*",
     "@marquei/design-tokens": "workspace:*",
     "@marquei/dominio": "workspace:*",
+    "@marquei/ui": "workspace:*",
     "next": "^16.4.3",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"

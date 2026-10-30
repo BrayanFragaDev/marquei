@@ -3,8 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Console web do dono/gestor do estabelecimento (Next.js). O Next entra com o subagente console-estabelecimento.",
+  "description": "Console web do dono/gestor/profissional do estabelecimento (Next.js App Router).",
   "scripts": {
+    "dev": "next dev --port 3001",
+    "build": "next build",
+    "start": "next start --port 3001",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests"
@@ -23,6 +26,7 @@
     "@marquei/api-client": "workspace:*",
     "@marquei/design-tokens": "workspace:*",
     "@marquei/dominio": "workspace:*",
+    "@marquei/ui": "workspace:*",
     "next": "^16.4.3",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"

@@ -1,4 +1,12 @@
 {
   "extends": "@marquei/config/tsconfig.base.json",
-  "include": ["src", "test"]
+  "compilerOptions": {
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "jsx": "preserve",
+    "allowImportingTsExtensions": true,
+    "incremental": true,
+    "plugins": [{ "name": "next" }]
+  },
+  "include": ["next-env.d.ts", "src", "test", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
 }

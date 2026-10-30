@@ -45,6 +45,7 @@ Convenção: tenant = `estabelecimento_id`; a API abre cada transação com `SET
 |---|---|---|---|
 | 0 | Fundação | M0: "hello tenant" | Monorepo e CI verdes; migração cria schema com RLS; teste prova que o tenant A não lê dados do B; login funciona; tokens geram tema para web e mobile |
 | 1 | MVP de agendamento | M1: primeiro salão agendando | Dono cria salão, serviços, equipe e horários; personaliza e publica o tema; cliente agenda e cancela pelo app; profissional conclui atendimento; tudo em staging |
+| P | Piloto (1 ou 2 estabelecimentos) | Piloto validado | Etapas P0 a P2 da seção 12: uso real medido, metas atingidas e pelo menos um aceita pagar |
 | 2 | Console da Plataforma | M2: operador no comando | Leads, estabelecimentos, planos, cobrança, acesso assistido, auditoria e flags operando; dashboard com indicadores de receita e uso |
 | 3 | Retenção | M3: menos faltas | Lembretes (Web Push e WhatsApp) entregues; no-show registrado; avaliação pós-atendimento; campanha de retorno; indicadores de qualidade no dashboard |
 | 4 | Premium | M4: venda do plano máximo | Sinal por Pix/cartão; multiunidade; domínio próprio; PWA com manifesto da marca do estabelecimento |
@@ -540,8 +541,8 @@ Definições comuns:
 
 | # | Decisão | Impacto se atrasar | Prazo ideal |
 |---|---|---|---|
-| 1 | Nome definitivo do produto (Agendaí é provisório) | Identificador do app, domínios, textos legais, contas de loja | Fim da Fase 0 |
-| 2 | Gateway de pagamento (Pix e cartão recorrente, repasse do sinal na Fase 4) | Bloqueia o adaptador real de NC e a cobrança | Início da Fase 2 |
+| 1 | Nome definitivo do produto (Agendaí é provisório) | Domínios, textos legais, contrato do piloto | Fim da Fase 0 |
+| 2 | Gateway de pagamento (Pix Automático e cartão recorrente, repasse do sinal na Fase 4). Recomendação inicial: Asaas, comparando propostas (seção 12.4) | Bloqueia o adaptador real de NC; o piloto não depende dele (cobrança manual) | Antes do P3 |
 | 3 | Provedor da API oficial de WhatsApp | Bloqueia lembretes por WhatsApp | Início da Fase 3 |
 | 5 | Domínios: da plataforma, do console do estabelecimento e do console da plataforma | Deploy e cookies separados | Fim da Fase 0 |
 | 6 | Hospedagem e região dos dados (Brasil recomendado pela LGPD) | Staging e produção | Fim da Fase 0 |
@@ -596,3 +597,85 @@ Cada tarefa é pequena e tem verificação objetiva. Dono entre colchetes.
 - [x] F0-31 [QA] Criar `testes/` com Playwright e k6 configurados e um teste de fumaça de cada. Verifica: smoke roda no CI. (e2e verde no CI; k6 só valida o script e falha sem API, job não bloqueante; Maestro manual até existir app)
 
 **Saída (M0):** todas as tarefas marcadas, CI verde, demonstração de isolamento entre dois tenants e de tema reprovado por contraste.
+
+## 12. Caminho para SaaS com assinatura (piloto → comercial)
+
+Decisão do dono: o produto será um SaaS cobrado por assinatura dos estabelecimentos, **validado
+antes com 1 ou 2 estabelecimentos**. O desenho abaixo evita construir cobrança antes de provar
+que o produto resolve um problema pelo qual alguém paga.
+
+### 12.1 Etapas
+
+| Etapa | Quando | Cobrança | Objetivo | Saída (decisão go/no-go) |
+|---|---|---|---|---|
+| P0. Preparação do piloto | Fim da Fase 1 (M1) | Nenhuma | Ambiente de produção/staging estável, onboarding assistido, termos e privacidade | Piloto pode usar sem risco de perder dados |
+| P1. Piloto grátis (4 a 8 semanas) | Após M1 | Nenhuma (acordo verbal ou escrito) | Medir uso real e coletar objeções com 1 ou 2 estabelecimentos de verticais diferentes | Metas de uso atingidas (12.2) |
+| P2. Piloto pago manual | Final do P1 | **Manual:** Pix ou boleto avulso, mensalidade simbólica ou preço cheio | Testar disposição a pagar e o preço, sem código de cobrança | Pelo menos um piloto aceita pagar o preço-alvo |
+| P3. Assinatura automática | Fase 2 (NC-2) | Gateway com recorrência (cartão e Pix) + nota fiscal | Cobrar sozinho, com inadimplência tratada, para os primeiros clientes além do piloto | Cobrança conciliada sem trabalho manual por 2 ciclos |
+| P4. Venda em escala | Após P3 | Plano Grátis → Pro → Premium com trial | Funil de leads e autoatendimento de contratação | Indicadores de receita (MRR, churn, LTV/CAC) no dashboard |
+
+Regra: **não construir P3 antes de P2 dar sinal positivo.** Até lá, o Console da Plataforma
+registra plano e status manualmente (campo no estabelecimento), e o dono envia a cobrança por Pix.
+
+### 12.2 Metas do piloto (definir antes de começar; ajustáveis)
+
+- Ativação: serviços, equipe e horários cadastrados e tema publicado em até 3 dias do início.
+- Uso: pelo menos 70% dos agendamentos do estabelecimento feitos pelo link/QR da plataforma na 4ª semana.
+- Retenção: o dono abre o console pelo menos 3 vezes por semana.
+- Valor: queda de faltas ou de mensagens manuais relatada pelo dono; NPS informal >= 8.
+- Confiabilidade: zero perda de dado e nenhum horário duplicado; erros críticos corrigidos em 1 dia útil.
+- Pagamento: pelo menos um dos dois aceita pagar o preço-alvo no P2.
+
+### 12.3 O que precisa existir antes do piloto (P0)
+
+- Ambiente de produção separado de staging, backups do PostgreSQL com teste de restauração, monitoramento de erros e alerta de queda.
+- Domínios definidos (decisão em aberto nº 5) e HTTPS; subdomínio por estabelecimento ou rota `/{slug}`.
+- Termos de uso, política de privacidade e **contrato de piloto** (LGPD: o estabelecimento é controlador dos dados dos clientes, a plataforma é operadora).
+- Onboarding assistido (você cadastra o estabelecimento pelo console, com consentimento) e canal de suporte combinado (WhatsApp).
+- Lembretes: no piloto, WhatsApp manual ou Web Push; WhatsApp oficial só depois (custo por conversa).
+- Medição: eventos analíticos já emitidos (seção 7) e uma visão mínima de uso por estabelecimento.
+
+### 12.4 Melhores caminhos para a cobrança (recomendação)
+
+1. **Gateway recomendado para começar: Asaas.** Atende o que o SaaS precisa: assinaturas por boleto,
+   Pix ou cartão, Pix Automático (débito recorrente autorizado pelo pagador, só Pix) e API de
+   assinaturas com sandbox; relatos de desenvolvedores indicam emissão de nota fiscal de serviço
+   pela própria API. Mantemos a porta `GatewayDePagamento` (já criada) para trocar de fornecedor
+   sem mexer no domínio. Alternativas a comparar com propostas reais: Stripe (forte em cartão, Pix
+   recorrente menos maduro), Pagar.me, Iugu, Vindi e Mercado Pago. **As taxas não foram verificadas
+   aqui: peça proposta e compare custo efetivo por método antes de fechar.**
+2. **Pix Automático como padrão para quem não quer cartão.** Reduz inadimplência de boleto e evita o
+   limite de cartão; o cliente autoriza uma vez. Cartão recorrente continua como opção. Boleto só
+   se houver demanda.
+3. **Cobrança manual no P2** (Pix/boleto avulso gerado no painel do gateway): zero código, serve
+   para validar preço.
+4. **Nota fiscal:** definir com o contador. Para MEI ou empresa pequena de serviços, avaliar a NFS-e
+   nacional/emissor da prefeitura e a emissão via gateway. Nenhuma venda recorrente sem CNPJ e regime definidos.
+5. **Modelo de preço inicial (a validar no P2):** assinatura mensal fixa por estabelecimento, com
+   plano anual com desconto; **trial de 14 dias** sem cartão; limites por plano em configuração
+   (produto.md, seção 7). Evitar comissão por agendamento no início (atrito e dificuldade de auditar).
+6. **Inadimplência:** carência de 5 a 7 dias, depois modo leitura (agenda continua visível, novos
+   agendamentos bloqueados), depois suspensão; nunca apagar dados. Régua de lembrete por e-mail/WhatsApp.
+7. **Webhooks** do gateway assinados, idempotentes e gravados antes de processar; conciliação diária.
+
+### 12.5 Trabalho técnico que isso adiciona ao plano
+
+| Item | Dono | Fase |
+|---|---|---|
+| Campo de plano/status/vencimento editável no console (cobrança manual) | CP + AD | Fase 2, antes do P2 |
+| Visão mínima de uso por estabelecimento (agendamentos, ativação, última atividade) | CP | Fase 2 (lote A do dashboard) |
+| Adaptador `GatewayDePagamento` do fornecedor escolhido + webhooks + conciliação | NC | P3 |
+| Planos, assinatura, fatura, cupom, trial, carência, régua de cobrança | NC + CP | P3 |
+| Autocontratação: fluxo de cadastro, trial, escolha de plano e pagamento | CE + NC | P4 |
+| Eventos `assinatura_*`, `fatura_*` e indicadores MRR/churn/inadimplência | NC + CP | P3/P4 |
+| Termos, privacidade, contrato e DPA | dono + jurídico | P0 |
+
+### 12.6 Riscos específicos e mitigação
+
+| Risco | Mitigação |
+|---|---|
+| Construir cobrança sem validar preço | Regra do P2 antes do P3 |
+| Piloto vira cliente sem contrato | Contrato de piloto com prazo e condição de pagamento |
+| Dependência de um gateway | Porta `GatewayDePagamento` + testes de contrato |
+| Dado de um estabelecimento vazar para o outro | Já mitigado por RLS e testes; reforçar no piloto com auditoria de acesso assistido |
+| Atendimento do piloto consome o desenvolvimento | Combinar canal e horário de suporte; priorizar bugs que travam agendamento |
