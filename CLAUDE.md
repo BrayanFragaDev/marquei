@@ -4,6 +4,8 @@ Instruções para agentes de código. Leia inteiro no início de cada sessão e 
 
 ## 1. O que é o projeto
 
+**A aplicação é 100% web.** Não existe aplicativo nativo (iOS/Android), Expo, React Native nem publicação em lojas. Todas as superfícies são apps Next.js; o app do cliente é um PWA mobile-first.
+
 Agendaí (nome provisório): plataforma SaaS multi-estabelecimento de agendamento por hora marcada.
 Cada estabelecimento tem app do cliente com marca dinâmica (design tokens), console próprio e é administrado por um console da plataforma separado, com dashboard de indicadores.
 Produto, personas, módulos e indicadores: `produto.md`. Fases, tarefas e donos de pasta: `plano.md`. Não duplique o conteúdo deles aqui nem no código; em caso de conflito, `produto.md` vence.
@@ -17,7 +19,7 @@ pnpm install                          # instala tudo (Node LTS e pnpm fixados em
 pnpm dev --filter=@marquei/api                 # API NestJS
 pnpm dev --filter=@marquei/console-estabelecimento
 pnpm dev --filter=@marquei/console-plataforma
-pnpm dev --filter=@marquei/mobile-cliente      # Expo
+pnpm dev --filter=@marquei/app-cliente         # App web do cliente (PWA)
 pnpm test                             # todos os testes (turbo)
 pnpm test --filter=@marquei/dominio            # só domínio, rápido, sem I/O
 pnpm test:integration                 # integração com Postgres/Redis em contêiner
@@ -39,7 +41,7 @@ Variáveis de ambiente: copie `.env.example`; nunca commite `.env`.
 
 ```
 apps/
-  mobile-cliente/          React Native + Expo. App do cliente final e modo profissional.
+  app-cliente/             Next.js (PWA, mobile-first). App web do cliente final e modo profissional. 100% web: sem app nativo.
   console-estabelecimento/ Next.js. Console do dono/gestor.
   console-plataforma/      Next.js. Aplicação SEPARADA: domínio, deploy e auth próprios.
   api/                     NestJS, organizada em módulos.
@@ -71,7 +73,7 @@ Camadas, de dentro para fora. Dependências apontam SEMPRE para dentro.
 1. **Domínio** (`packages/dominio`): entidades, objetos de valor, serviços de domínio, erros de domínio e interfaces de repositório/portas.
 2. **Aplicação** (`apps/api/src/modulos/<modulo>/aplicacao`): casos de uso. Orquestram domínio e portas.
 3. **Infraestrutura** (`apps/api/src/modulos/<modulo>/infra`, mais `src/nucleo` e `src/filas`): implementações de repositórios (Postgres), filas (BullMQ), gateways, notificações, relógio.
-4. **Interface**: controllers NestJS, páginas/componentes Next.js e telas React Native. Só traduzem entrada/saída e chamam casos de uso.
+4. **Interface**: controllers NestJS, páginas/componentes Next.js. Só traduzem entrada/saída e chamam casos de uso.
 
 Regras:
 - **Entidades e objetos de valor têm comportamento.** Modelo anêmico (só campos + getters/setters) é proibido. A regra mora no objeto que tem os dados.

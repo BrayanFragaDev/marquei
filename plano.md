@@ -19,7 +19,7 @@ por um estabelecimento real. Vários subagentes trabalham em paralelo sem se atr
 | Item | Decisão |
 |---|---|
 | Repositório | Monorepo com pnpm workspaces + Turborepo, TypeScript em tudo |
-| `apps/mobile-cliente` | React Native + Expo, app único, marca dinâmica por estabelecimento, modo profissional incluído |
+| `apps/app-cliente` | Next.js (App Router), PWA mobile-first, app web único com marca dinâmica por estabelecimento, modo profissional incluído. Sem aplicativo nativo e sem lojas |
 | `apps/console-estabelecimento` | Next.js, dono/gestor do salão |
 | `apps/console-plataforma` | Next.js, aplicação separada, domínio, deploy e autenticação próprios |
 | `apps/api` | NestJS, PostgreSQL com RLS por tenant, Redis + BullMQ |
@@ -46,16 +46,16 @@ Convenção: tenant = `estabelecimento_id`; a API abre cada transação com `SET
 | 0 | Fundação | M0: "hello tenant" | Monorepo e CI verdes; migração cria schema com RLS; teste prova que o tenant A não lê dados do B; login funciona; tokens geram tema para web e mobile |
 | 1 | MVP de agendamento | M1: primeiro salão agendando | Dono cria salão, serviços, equipe e horários; personaliza e publica o tema; cliente agenda e cancela pelo app; profissional conclui atendimento; tudo em staging |
 | 2 | Console da Plataforma | M2: operador no comando | Leads, estabelecimentos, planos, cobrança, acesso assistido, auditoria e flags operando; dashboard com indicadores de receita e uso |
-| 3 | Retenção | M3: menos faltas | Lembretes push e WhatsApp entregues; no-show registrado; avaliação pós-atendimento; campanha de retorno; indicadores de qualidade no dashboard |
-| 4 | Premium | M4: venda do plano máximo | Sinal por Pix/cartão; multiunidade; domínio próprio; app no ar nas lojas com fluxo completo |
+| 3 | Retenção | M3: menos faltas | Lembretes (Web Push e WhatsApp) entregues; no-show registrado; avaliação pós-atendimento; campanha de retorno; indicadores de qualidade no dashboard |
+| 4 | Premium | M4: venda do plano máximo | Sinal por Pix/cartão; multiunidade; domínio próprio; PWA com manifesto da marca do estabelecimento |
 
 Ajustes em relação à sugestão inicial, com justificativa:
 - **Dashboard dividido em dois lotes:** receita e uso na Fase 2; no-show, notificações e erros na
   Fase 3, porque dependem de dados que só existem depois dos lembretes.
 - **Plano Grátis padrão na Fase 1:** semeado por migração, com limite lido de tabela, para a
   Fase 2 só acrescentar a edição.
-- **Submissão às lojas começa na Fase 1 (build interno e TestFlight):** a aprovação é lenta e
-  arriscada; a versão pública sai na Fase 4.
+- **100% web, sem lojas de aplicativo:** o app do cliente é um PWA instalável pela tela inicial.
+  Isso elimina contas de desenvolvedor, revisão das lojas e builds nativos.
 
 ## 4. Divisão em subagentes
 
@@ -68,7 +68,7 @@ usadas nas tabelas: AD, BN, AS, DS, AC, CE, CP, NC, QA.
 | BN | `backend-nucleo` | Implementar o domínio e a API de estabelecimento, catálogo, equipe e agenda |
 | AS | `auth-seguranca` | Implementar identidade, OTP, e-mail/senha, 2FA, papéis e contexto de tenant |
 | DS | `design-system` | Entregar tokens, presets, validação de contraste e o módulo de tema rascunho/publicado |
-| AC | `app-cliente` | Construir o app Expo do cliente e o modo profissional |
+| AC | `app-cliente` | Construir o app web (PWA) do cliente e o modo profissional |
 | CE | `console-estabelecimento` | Construir o console web do dono/gestor do salão |
 | CP | `console-plataforma` | Construir o console do operador, o dashboard e a API de administração |
 | NC | `notificacoes-cobranca` | Entregar lembretes, filas, assinaturas, faturas e gateway |
@@ -91,7 +91,7 @@ usadas nas tabelas: AD, BN, AS, DS, AC, CE, CP, NC, QA.
 | `packages/api-client/src/identidade/**` | AS |
 | `packages/design-tokens/**` | DS |
 | `packages/dominio/src/tema/**`, `apps/api/src/modulos/tema/**`, `packages/api-client/src/tema/**` | DS |
-| `apps/mobile-cliente/**` | AC |
+| `apps/app-cliente/**` | AC |
 | `apps/console-estabelecimento/**` | CE |
 | `apps/console-plataforma/**` | CP |
 | `packages/dominio/src/plataforma/**` (lead, plano, flag, auditoria, indicador) | CP |
@@ -192,7 +192,7 @@ abuso (força bruta, reuso de token, troca de tenant no header); varredura de ro
 
 ### 4.5 Subagente DS — `design-system`
 
-**Missão:** fazer qualquer combinação de tema ficar bonita e acessível, em web e mobile.
+**Missão:** fazer qualquer combinação de tema ficar bonita e acessível, em web, inclusive em telas pequenas.
 
 **Entregas**
 - `packages/design-tokens`: tipos `TemaDoEstabelecimento` (cores, tipografia, raio, densidade,
@@ -200,7 +200,7 @@ abuso (força bruta, reuso de token, troca de tenant no header); varredura de ro
 - Famílias tipográficas curadas (4 a 6) e presets de forma e layout (2 a 3).
 - Validador de contraste (WCAG AA: 4.5:1 texto normal, 3:1 texto grande e componentes) com
   correção sugerida automática.
-- Geradores: `paraVariaveisCss(tema)` para Next.js e `paraTemaNativo(tema)` para React Native.
+- Gerador: `paraVariaveisCss(tema)` (variáveis CSS) para todos os apps web.
 - Módulo de tema na API: salvar rascunho, publicar, reverter, histórico; leitura pública do publicado.
 - Catálogo de componentes de referência (documentado) para AC e CE seguirem.
 - Evento `tema_rascunho_salvo` e `tema_publicado`.
@@ -212,36 +212,36 @@ abuso (força bruta, reuso de token, troca de tenant no header); varredura de ro
 - Publicar tema com contraste abaixo de AA é recusado com mensagem clara e sugestão de correção.
 - Todas as combinações de preset x fonte x raio geram tema sem erro (teste combinatório).
 - Rascunho nunca altera o que o cliente vê; só `publicar` altera.
-- Pacote não depende de React, React Native nem Next.js (apenas tipos e funções).
+- Pacote não depende de React nem Next.js (apenas tipos e funções).
 
 **Testes esperados:** unitários do validador com casos de borda; combinatório de presets;
 snapshot dos geradores; integração rascunho/publicado/reverter.
 
 ### 4.6 Subagente AC — `app-cliente`
 
-**Missão:** agendar em menos de um minuto, com a marca do estabelecimento, no iOS e no Android.
+**Missão:** agendar em menos de um minuto, com a marca do estabelecimento, no navegador do celular, sem instalar nada.
 
 **Entregas**
-- Expo (TypeScript), navegação, `ProvedorDeTema` que carrega o tema publicado em tempo de execução.
-- Entrada por link profundo, QR e código; cache do tema e fallback offline.
+- Next.js (TypeScript), rotas por estabelecimento (`/{slug}`), `ProvedorDeTema` que aplica as variáveis CSS do tema publicado.
+- Entrada por link, QR e código; PWA instalável (manifesto e service worker) com cache do tema e fallback offline.
 - Telas: início do estabelecimento, catálogo, profissional, calendário de horários livres,
   confirmação, login por OTP, meus agendamentos, cancelar e remarcar.
 - Modo profissional: login por e-mail/senha, agenda do dia, concluir atendimento.
 - Vocabulário dinâmico aplicado a todos os textos; preparação para i18n (pt-BR primeiro).
 - Rodapé do plano Grátis com convite de lead (Fase 2); pedido de avaliação (Fase 3).
-- Builds internos (EAS) e envio para TestFlight/teste interno.
+- Deploy web (preview por PR) e manifesto PWA com a marca do estabelecimento.
 
 **Dependências:** DS-1 (tokens); BN-1 (contrato e mock); AS-1 (login de desenvolvimento).
 **Em paralelo:** CE; ambos contra o mock até BN-2.
 **Critérios de aceite**
 - Fluxo abrir -> escolher serviço -> horário -> confirmar em <= 5 toques e < 60 s em teste cronometrado.
 - Horários visíveis em < 2 s em 4G simulado (perfil de rede 4G no teste).
-- Dois estabelecimentos com temas diferentes renderizam marcas diferentes no mesmo binário.
-- Alvos de toque >= 44 pt; rótulos de acessibilidade em todos os botões e campos.
+- Dois estabelecimentos com temas diferentes renderizam marcas diferentes na mesma aplicação.
+- Alvos de toque >= 44 px; rótulos de acessibilidade em todos os botões e campos.
 - Sem texto fixo "profissional" ou "serviço": tudo vem do vocabulário.
 
-**Testes esperados:** unitários de componentes (Jest + Testing Library); testes de tela com
-mock do api-client; Maestro para o fluxo principal em emulador; verificação de acessibilidade.
+**Testes esperados:** unitários de componentes (Vitest + Testing Library); testes de tela com
+mock do api-client; Playwright em viewport de celular para o fluxo principal; verificação de acessibilidade.
 
 ### 4.7 Subagente CE — `console-estabelecimento`
 
@@ -300,7 +300,7 @@ flags e auditoria; Playwright para funil e acesso assistido; teste de isolamento
 
 **Entregas**
 - Infra BullMQ: filas `lembretes`, `cobranca`, `metricas`; reprocessamento, backoff, fila de falhas.
-- Porta `ProvedorDeMensagem` com adaptadores: push Expo, WhatsApp (API oficial), SMS/OTP, e-mail.
+- Porta `ProvedorDeMensagem` com adaptadores: Web Push, WhatsApp (API oficial), SMS/OTP, e-mail.
 - Agendador de lembretes (24 h e 2 h antes, configurável por plano); respeita opt-out.
 - Registro de cada envio (`notificacao`: status, custo, erro) para custo de WhatsApp e falhas.
 - Cobrança: `Assinatura`, `Fatura`, `Cupom`, porta `GatewayDePagamento`; webhooks idempotentes;
@@ -327,7 +327,7 @@ de filas com Redis real; contrato de adaptadores com provedor simulado; testes d
 - Estrutura `testes/` (e2e, carga, segurança) e dados de teste determinísticos.
 - Suíte de vazamento de tenant: percorre TODAS as rotas autenticadas com token do tenant A e
   dados do B; falha se vier qualquer linha.
-- Smoke e2e por fase: Playwright (web) e Maestro (mobile).
+- Smoke e2e por fase: Playwright (desktop e viewport de celular).
 - Carga com k6 nos horários livres e criação de agendamento.
 - Varredura de dependências e segredos; revisão de OWASP ASVS nível 2 para auth e dados.
 - Checklist LGPD; relatório de acessibilidade por fase.
@@ -532,8 +532,7 @@ Definições comuns:
 | Risco | Impacto | Mitigação | Dono |
 |---|---|---|---|
 | Vazamento de dados entre tenants | Crítico (LGPD, confiança) | RLS com `FORCE`; papéis separados; suíte de tenant em todo PR; revisão de queries nativas | AD, QA |
-| Custo de WhatsApp acima do previsto | Margem do plano Pro | Registrar custo por envio; limite mensal por plano; push como padrão; WhatsApp só Pro/Premium; alerta no dashboard | NC, CP |
-| Reprovação nas lojas de app | Atraso do lançamento | Build interno desde a Fase 1; seguir guias de revisão; conta de demonstração; descrição clara de marca dinâmica; política de privacidade e exclusão de conta no app | AC |
+| Custo de WhatsApp acima do previsto | Margem do plano Pro | Registrar custo por envio; limite mensal por plano; Web Push como padrão; WhatsApp só Pro/Premium; alerta no dashboard | NC, CP |
 | Tema com contraste ruim | Acessibilidade e imagem do produto | Validador obrigatório na publicação; opções curadas; sugestão automática de correção | DS |
 | Inadimplência de estabelecimentos | Receita recorrente | Carência e régua de cobrança; bloqueio gradual de recursos pagos sem apagar dados; Pix e cartão; painel de inadimplência | NC, CP |
 
@@ -544,7 +543,6 @@ Definições comuns:
 | 1 | Nome definitivo do produto (Agendaí é provisório) | Identificador do app, domínios, textos legais, contas de loja | Fim da Fase 0 |
 | 2 | Gateway de pagamento (Pix e cartão recorrente, repasse do sinal na Fase 4) | Bloqueia o adaptador real de NC e a cobrança | Início da Fase 2 |
 | 3 | Provedor da API oficial de WhatsApp | Bloqueia lembretes por WhatsApp | Início da Fase 3 |
-| 4 | Contas de desenvolvedor Apple e Google (CNPJ ou pessoa física) | Bloqueia TestFlight e testes internos | Início da Fase 1 |
 | 5 | Domínios: da plataforma, do console do estabelecimento e do console da plataforma | Deploy e cookies separados | Fim da Fase 0 |
 | 6 | Hospedagem e região dos dados (Brasil recomendado pela LGPD) | Staging e produção | Fim da Fase 0 |
 | 7 | Preços e limites iniciais dos planos | Semente do banco e textos | Início da Fase 2 |
@@ -562,7 +560,7 @@ Cada tarefa é pequena e tem verificação objetiva. Dono entre colchetes.
 - [x] F0-03 Criar `turbo.json` com tarefas `lint`, `typecheck`, `test`, `build`, `dev`. Verifica: `pnpm turbo run build` roda e usa cache na segunda execução.
 - [x] F0-04 Criar `packages/config` com tsconfig base, ESLint e Prettier. Verifica: pacote de exemplo estende e passa no lint.
 - [x] F0-05 Adicionar env tipado e validado (zod) em `packages/config`. Verifica: variável faltando derruba o start com mensagem clara.
-- [x] F0-06 Criar esqueletos de `apps/api`, `apps/mobile-cliente`, `apps/console-estabelecimento`, `apps/console-plataforma`, `packages/dominio`, `packages/design-tokens`, `packages/api-client`. Verifica: `pnpm turbo run typecheck` verde.
+- [x] F0-06 Criar esqueletos de `apps/api`, `apps/app-cliente`, `apps/console-estabelecimento`, `apps/console-plataforma`, `packages/dominio`, `packages/design-tokens`, `packages/api-client`. Verifica: `pnpm turbo run typecheck` verde.
 - [x] F0-07 Regra ESLint proibindo `packages/dominio` de importar NestJS, React e drivers de banco. Verifica: importação proibida de teste falha o lint.
 - [x] F0-08 Regra ESLint proibindo apps de importar de outros apps. Verifica: importação cruzada falha o lint.
 - [ ] F0-09 Criar `docker-compose.yml` com Postgres e Redis. Verifica: `docker compose up -d` e `pg_isready` respondem. (NÃO verificado: daemon Docker indisponível no ambiente de desenvolvimento)
@@ -589,12 +587,12 @@ Cada tarefa é pequena e tem verificação objetiva. Dono entre colchetes.
 ### 11.4 Design tokens [DS]
 - [x] F0-25 Definir tipo `TemaDoEstabelecimento` e valores padrão por vertical. Verifica: typecheck e snapshot dos padrões.
 - [x] F0-26 Implementar o validador de contraste WCAG AA com sugestão de correção. Verifica: casos conhecidos (preto/branco = 21:1; cinza claro sobre branco reprova).
-- [x] F0-27 Gerar `paraVariaveisCss` e `paraTemaNativo`. Verifica: snapshot de ambos para dois temas diferentes.
+- [x] F0-27 Gerar `paraVariaveisCss`. Verifica: snapshot para dois temas diferentes.
 - [x] F0-28 Teste combinatório de todas as combinações de preset, fonte e raio. Verifica: nenhuma combinação gera erro.
 
 ### 11.5 Contratos e qualidade [BN, NC, QA]
 - [x] F0-29 [BN] Publicar OpenAPI inicial (estabelecimento, serviços, horários livres, agendamento) e script `gerar:api-client`. Verifica: cliente gerado compila.
 - [x] F0-30 [NC] Publicar interfaces `ProvedorDeMensagem` e `GatewayDePagamento` em `packages/dominio`. Verifica: typecheck verde; PR revisado por CP.
-- [x] F0-31 [QA] Criar `testes/` com Playwright, Maestro e k6 configurados e um teste de fumaça de cada. Verifica: smoke roda no CI. (e2e verde no CI; k6 só valida o script e falha sem API, job não bloqueante; Maestro manual até existir app)
+- [x] F0-31 [QA] Criar `testes/` com Playwright e k6 configurados e um teste de fumaça de cada. Verifica: smoke roda no CI. (e2e verde no CI; k6 só valida o script e falha sem API, job não bloqueante; Maestro manual até existir app)
 
 **Saída (M0):** todas as tarefas marcadas, CI verde, demonstração de isolamento entre dois tenants e de tema reprovado por contraste.

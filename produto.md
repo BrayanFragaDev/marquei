@@ -22,8 +22,8 @@ demora na resposta, sofrem com faltas (no-show) e não enxergam números do pró
 
 | Persona | O que faz | Superfície | Autenticação |
 |---|---|---|---|
-| **Cliente final** | Escolhe serviço, profissional, horário; vê e cancela agendamentos | App mobile nativo (iOS/Android) com a marca do estabelecimento | Telefone + código (OTP) |
-| **Profissional** | Vê a própria agenda do dia, marca atendimento como concluído | App mobile (modo profissional) e web responsiva | E-mail + senha |
+| **Cliente final** | Escolhe serviço, profissional, horário; vê e cancela agendamentos | **App web do cliente** (PWA instalável, mobile-first) com a marca do estabelecimento | Telefone + código (OTP) |
+| **Profissional** | Vê a própria agenda do dia, marca atendimento como concluído | App web do cliente em modo profissional (responsivo) | E-mail + senha |
 | **Dono/gestor do estabelecimento** | Personaliza marca, serviços, equipe, horários, vê indicadores do salão | **Console do Estabelecimento** (web) | E-mail + senha (+ 2FA opcional) |
 | **Operador da plataforma (você)** | Administra todos os estabelecimentos, leads, planos, cobrança, suporte | **Console da Plataforma** (web, somente web) | E-mail + senha + 2FA obrigatório |
 
@@ -45,7 +45,7 @@ O sistema não conhece "salão" no código. Conhece **Estabelecimento**, **Servi
 ## 4. Customização visual (pelo estabelecimento)
 
 Tudo é **design token** guardado por estabelecimento e lido pelo app em tempo de execução,
-sem nova versão na loja:
+sem publicar nada: é só trocar dados, não há loja de aplicativos:
 
 - Logo, capa/banner e galeria de fotos de trabalhos.
 - Paleta: cor principal, cor de apoio, fundo, texto (validação automática de contraste).
@@ -61,9 +61,9 @@ qualquer combinação continue bonita e acessível, e mantém o suporte barato.
 
 ## 5. Módulos do produto
 
-### 5.1 App do Cliente (mobile)
+### 5.1 App web do Cliente (PWA)
 Descoberta do estabelecimento por link/QR/código; catálogo; escolha de profissional;
-calendário com horários livres reais; confirmação; lembretes (push e WhatsApp); histórico;
+calendário com horários livres reais; confirmação; lembretes (Web Push e WhatsApp); histórico;
 reagendar e cancelar dentro da política; avaliação pós-atendimento.
 
 ### 5.2 Console do Estabelecimento (web)
@@ -132,8 +132,8 @@ Marketplace de descoberta entre estabelecimentos; programa de fidelidade; estoqu
 folha de comissões; emissão de nota fiscal.
 
 ## 11. Premissas a validar
-1. Cliente final entra por link/QR do estabelecimento (um app por marca ou um app único com
-   marca dinâmica). **Recomendação:** app único com marca dinâmica, para manter uma só
-   publicação nas lojas; opção de app "white-label" dedicado como upsell Premium.
+1. Cliente final entra por link/QR do estabelecimento (`/{slug}`). **Decisão:** a plataforma é
+   100% web, sem aplicativo nativo e sem lojas (Apple/Google). Um único app web com marca
+   dinâmica; PWA instalável pela tela inicial; domínio próprio do estabelecimento como upsell Premium.
 2. Cobrança dos estabelecimentos via gateway nacional (Pix e cartão recorrente).
 3. WhatsApp via API oficial (custo por conversa repassado ao plano Pro/Premium).

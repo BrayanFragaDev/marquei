@@ -47,7 +47,6 @@ export { ValidadorDeContraste } from "./contraste/validador-de-contraste";
 export { VERTICAIS, verticalOuPadrao, type Vertical } from "./padroes/vertical";
 export { temaPadraoDaVertical } from "./padroes/temas-padrao";
 export { paraVariaveisCss, type VariaveisCss } from "./geradores/variaveis-css";
-export { paraTemaNativo, type TemaNativo } from "./geradores/tema-nativo";
 export {
   catalogoDeOpcoes,
   type OpcoesCuradas,

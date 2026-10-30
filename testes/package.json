@@ -9,7 +9,6 @@
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p carga/tsconfig.json",
     "test": "vitest run --passWithNoTests dados",
     "test:e2e": "playwright test",
-    "validar:mobile": "node mobile/validar-fluxos.mjs",
     "carga:fumaca": "k6 run carga/fumaca.ts"
   },
   "devDependencies": {

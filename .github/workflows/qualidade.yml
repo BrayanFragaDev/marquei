@@ -63,8 +63,3 @@ jobs:
         env:
           BASE_URL: ${{ vars.BASE_URL_CARGA || 'http://localhost:3333' }}
         run: k6 run testes/carga/fumaca.ts
-
-  # Maestro (mobile): manual ate existir o app. Rodar localmente com
-  # `maestro test testes/mobile/fumaca.yaml` e validar a sintaxe com
-  # `pnpm --filter @marquei/testes validar:mobile`. Vira job quando houver build do app
-  # em emulador (Fase 1+).

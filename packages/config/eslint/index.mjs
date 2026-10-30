@@ -2,7 +2,7 @@ import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 
 /** Nomes dos apps do monorepo. Um app nunca importa outro (CLAUDE.md, secao 3). */
-export const APPS = ["api", "mobile-cliente", "console-estabelecimento", "console-plataforma"];
+export const APPS = ["api", "app-cliente", "console-estabelecimento", "console-plataforma"];
 
 const arquivosDeTeste = ["**/*.test.{ts,tsx}", "**/*.spec.{ts,tsx}", "**/test/**", "testes/**"];
 
@@ -11,7 +11,6 @@ export const ignores = {
     "**/node_modules/**",
     "**/dist/**",
     "**/.next/**",
-    "**/.expo/**",
     "**/.turbo/**",
     "**/coverage/**",
     "**/playwright-report/**",

@@ -1,0 +1,30 @@
+{
+  "name": "@marquei/app-cliente",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "App web do cliente final e modo profissional (Next.js, PWA mobile-first). 100% web.",
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "devDependencies": {
+    "@marquei/config": "workspace:*",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.8",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "jsdom": "^30.1.3"
+  },
+  "dependencies": {
+    "@marquei/api-client": "workspace:*",
+    "@marquei/design-tokens": "workspace:*",
+    "@marquei/dominio": "workspace:*",
+    "next": "^16.4.3",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  }
+}

@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`geradores > snapshot do CSS e do tema nativo de dois temas diferentes > css-barbearia 1`] = `
+exports[`geradores > snapshot do CSS de dois temas diferentes > css-barbearia 1`] = `
 ":root {
   --cor-primaria: #d4a24c;
   --cor-texto-sobre-primaria: #14161a;
@@ -25,7 +25,7 @@ exports[`geradores > snapshot do CSS e do tema nativo de dois temas diferentes >
 "
 `;
 
-exports[`geradores > snapshot do CSS e do tema nativo de dois temas diferentes > css-estetica 1`] = `
+exports[`geradores > snapshot do CSS de dois temas diferentes > css-estetica 1`] = `
 ":root {
   --cor-primaria: #2a7461;
   --cor-texto-sobre-primaria: #ffffff;
@@ -48,74 +48,4 @@ exports[`geradores > snapshot do CSS e do tema nativo de dois temas diferentes >
   --preset-cartao-servico: grade;
 }
 "
-`;
-
-exports[`geradores > snapshot do CSS e do tema nativo de dois temas diferentes > nativo-barbearia 1`] = `
-{
-  "cores": {
-    "apoio": "#3a3f4a",
-    "fundo": "#14161a",
-    "primaria": "#d4a24c",
-    "superficie": "#1f2228",
-    "texto": "#f2f2f0",
-    "textoSobrePrimaria": "#14161a",
-    "textoSuave": "#b4b8c0",
-  },
-  "espacamentos": {
-    "alturaDoCampo": 40,
-    "lg": 16,
-    "md": 12,
-    "sm": 6,
-    "xl": 24,
-    "xs": 2,
-  },
-  "fonte": {
-    "alternativa": "Georgia",
-    "familia": "Roboto Slab",
-  },
-  "presets": {
-    "cabecalho": "simples",
-    "cartaoDeServico": "lista",
-  },
-  "raios": {
-    "botao": 0,
-    "campo": 0,
-    "cartao": 0,
-  },
-}
-`;
-
-exports[`geradores > snapshot do CSS e do tema nativo de dois temas diferentes > nativo-estetica 1`] = `
-{
-  "cores": {
-    "apoio": "#cfe8e0",
-    "fundo": "#f4f8f6",
-    "primaria": "#2a7461",
-    "superficie": "#ffffff",
-    "texto": "#1b2a26",
-    "textoSobrePrimaria": "#ffffff",
-    "textoSuave": "#4c625b",
-  },
-  "espacamentos": {
-    "alturaDoCampo": 48,
-    "lg": 24,
-    "md": 16,
-    "sm": 8,
-    "xl": 32,
-    "xs": 4,
-  },
-  "fonte": {
-    "alternativa": "Georgia",
-    "familia": "Playfair Display",
-  },
-  "presets": {
-    "cabecalho": "centralizado",
-    "cartaoDeServico": "grade",
-  },
-  "raios": {
-    "botao": 8,
-    "campo": 6,
-    "cartao": 12,
-  },
-}
 `;

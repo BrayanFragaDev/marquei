@@ -20,7 +20,7 @@ const NOMES_DE_COR: Readonly<Record<CampoDeCor, string>> = {
 
 const px = (n: number): string => `${n}px`;
 
-/** Gera as variaveis CSS do tema (Next.js/web). Mesmos valores de `paraTemaNativo`. */
+/** Gera as variaveis CSS do tema (Next.js/web). */
 export function paraVariaveisCss(tema: TemaDoEstabelecimento, seletor = ":root"): VariaveisCss {
   const raio = tema.escalaDeRaio();
   const espaco = tema.escalaDeEspacamento();
