@@ -647,8 +647,13 @@ registra plano e status manualmente (campo no estabelecimento), e o dono envia a
 2. **Pix Automático como padrão para quem não quer cartão.** Reduz inadimplência de boleto e evita o
    limite de cartão; o cliente autoriza uma vez. Cartão recorrente continua como opção. Boleto só
    se houver demanda.
-3. **Cobrança manual no P2** (Pix/boleto avulso gerado no painel do gateway): zero código, serve
-   para validar preço.
+3. **Cobrança manual no P2 e recebimento no piloto = conta Nubank PJ do dono.** Pelo site do Nu
+   Empresas (consultado em 30/10/2026; confirme no app), a conta PJ gera cobrança por Pix (QR Code
+   ou copia e cola) e boleto de cobrança, ambos anunciados como gratuitos, e o Assistente de
+   Cobranças agenda lembretes, juros e multa. A página **não** mostra assinatura recorrente, API nem
+   conciliação automática; portanto no P2 o dono gera a cobrança mensal no app do Nubank e marca o
+   plano como pago no console. Zero código; serve para validar preço. No P3 o gateway cobra e o
+   dinheiro cai na mesma conta Nubank PJ.
 4. **Nota fiscal:** definir com o contador. Para MEI ou empresa pequena de serviços, avaliar a NFS-e
    nacional/emissor da prefeitura e a emissão via gateway. Nenhuma venda recorrente sem CNPJ e regime definidos.
 5. **Modelo de preço inicial (a validar no P2):** assinatura mensal fixa por estabelecimento, com
