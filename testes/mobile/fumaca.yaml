@@ -1,8 +1,0 @@
-# Fluxo de fumaca do Maestro. Execucao manual ate existir o app (ver README).
-# TODO(nome-do-produto): o identificador definitivo depende da decisao do nome
-# do produto. Troque o placeholder abaixo pelo applicationId/bundleId real.
-appId: br.com.exemplo.marquei.PLACEHOLDER
----
-- launchApp:
-    clearState: true
-- assertVisible: ".*"

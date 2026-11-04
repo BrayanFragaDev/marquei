@@ -19,7 +19,7 @@ por um estabelecimento real. Vários subagentes trabalham em paralelo sem se atr
 | Item | Decisão |
 |---|---|
 | Repositório | Monorepo com pnpm workspaces + Turborepo, TypeScript em tudo |
-| `apps/mobile-cliente` | React Native + Expo, app único, marca dinâmica por estabelecimento, modo profissional incluído |
+| `apps/app-cliente` | Next.js (App Router), PWA mobile-first, app web único com marca dinâmica por estabelecimento, modo profissional incluído. Sem aplicativo nativo e sem lojas |
 | `apps/console-estabelecimento` | Next.js, dono/gestor do salão |
 | `apps/console-plataforma` | Next.js, aplicação separada, domínio, deploy e autenticação próprios |
 | `apps/api` | NestJS, PostgreSQL com RLS por tenant, Redis + BullMQ |
@@ -45,17 +45,18 @@ Convenção: tenant = `estabelecimento_id`; a API abre cada transação com `SET
 |---|---|---|---|
 | 0 | Fundação | M0: "hello tenant" | Monorepo e CI verdes; migração cria schema com RLS; teste prova que o tenant A não lê dados do B; login funciona; tokens geram tema para web e mobile |
 | 1 | MVP de agendamento | M1: primeiro salão agendando | Dono cria salão, serviços, equipe e horários; personaliza e publica o tema; cliente agenda e cancela pelo app; profissional conclui atendimento; tudo em staging |
+| P | Piloto (1 ou 2 estabelecimentos) | Piloto validado | Etapas P0 a P2 da seção 12: uso real medido, metas atingidas e pelo menos um aceita pagar |
 | 2 | Console da Plataforma | M2: operador no comando | Leads, estabelecimentos, planos, cobrança, acesso assistido, auditoria e flags operando; dashboard com indicadores de receita e uso |
-| 3 | Retenção | M3: menos faltas | Lembretes push e WhatsApp entregues; no-show registrado; avaliação pós-atendimento; campanha de retorno; indicadores de qualidade no dashboard |
-| 4 | Premium | M4: venda do plano máximo | Sinal por Pix/cartão; multiunidade; domínio próprio; app no ar nas lojas com fluxo completo |
+| 3 | Retenção | M3: menos faltas | Lembretes (Web Push e WhatsApp) entregues; no-show registrado; avaliação pós-atendimento; campanha de retorno; indicadores de qualidade no dashboard |
+| 4 | Premium | M4: venda do plano máximo | Sinal por Pix/cartão; multiunidade; domínio próprio; PWA com manifesto da marca do estabelecimento |
 
 Ajustes em relação à sugestão inicial, com justificativa:
 - **Dashboard dividido em dois lotes:** receita e uso na Fase 2; no-show, notificações e erros na
   Fase 3, porque dependem de dados que só existem depois dos lembretes.
 - **Plano Grátis padrão na Fase 1:** semeado por migração, com limite lido de tabela, para a
   Fase 2 só acrescentar a edição.
-- **Submissão às lojas começa na Fase 1 (build interno e TestFlight):** a aprovação é lenta e
-  arriscada; a versão pública sai na Fase 4.
+- **100% web, sem lojas de aplicativo:** o app do cliente é um PWA instalável pela tela inicial.
+  Isso elimina contas de desenvolvedor, revisão das lojas e builds nativos.
 
 ## 4. Divisão em subagentes
 
@@ -68,7 +69,7 @@ usadas nas tabelas: AD, BN, AS, DS, AC, CE, CP, NC, QA.
 | BN | `backend-nucleo` | Implementar o domínio e a API de estabelecimento, catálogo, equipe e agenda |
 | AS | `auth-seguranca` | Implementar identidade, OTP, e-mail/senha, 2FA, papéis e contexto de tenant |
 | DS | `design-system` | Entregar tokens, presets, validação de contraste e o módulo de tema rascunho/publicado |
-| AC | `app-cliente` | Construir o app Expo do cliente e o modo profissional |
+| AC | `app-cliente` | Construir o app web (PWA) do cliente e o modo profissional |
 | CE | `console-estabelecimento` | Construir o console web do dono/gestor do salão |
 | CP | `console-plataforma` | Construir o console do operador, o dashboard e a API de administração |
 | NC | `notificacoes-cobranca` | Entregar lembretes, filas, assinaturas, faturas e gateway |
@@ -91,7 +92,7 @@ usadas nas tabelas: AD, BN, AS, DS, AC, CE, CP, NC, QA.
 | `packages/api-client/src/identidade/**` | AS |
 | `packages/design-tokens/**` | DS |
 | `packages/dominio/src/tema/**`, `apps/api/src/modulos/tema/**`, `packages/api-client/src/tema/**` | DS |
-| `apps/mobile-cliente/**` | AC |
+| `apps/app-cliente/**` | AC |
 | `apps/console-estabelecimento/**` | CE |
 | `apps/console-plataforma/**` | CP |
 | `packages/dominio/src/plataforma/**` (lead, plano, flag, auditoria, indicador) | CP |
@@ -192,7 +193,7 @@ abuso (força bruta, reuso de token, troca de tenant no header); varredura de ro
 
 ### 4.5 Subagente DS — `design-system`
 
-**Missão:** fazer qualquer combinação de tema ficar bonita e acessível, em web e mobile.
+**Missão:** fazer qualquer combinação de tema ficar bonita e acessível, em web, inclusive em telas pequenas.
 
 **Entregas**
 - `packages/design-tokens`: tipos `TemaDoEstabelecimento` (cores, tipografia, raio, densidade,
@@ -200,7 +201,7 @@ abuso (força bruta, reuso de token, troca de tenant no header); varredura de ro
 - Famílias tipográficas curadas (4 a 6) e presets de forma e layout (2 a 3).
 - Validador de contraste (WCAG AA: 4.5:1 texto normal, 3:1 texto grande e componentes) com
   correção sugerida automática.
-- Geradores: `paraVariaveisCss(tema)` para Next.js e `paraTemaNativo(tema)` para React Native.
+- Gerador: `paraVariaveisCss(tema)` (variáveis CSS) para todos os apps web.
 - Módulo de tema na API: salvar rascunho, publicar, reverter, histórico; leitura pública do publicado.
 - Catálogo de componentes de referência (documentado) para AC e CE seguirem.
 - Evento `tema_rascunho_salvo` e `tema_publicado`.
@@ -212,36 +213,36 @@ abuso (força bruta, reuso de token, troca de tenant no header); varredura de ro
 - Publicar tema com contraste abaixo de AA é recusado com mensagem clara e sugestão de correção.
 - Todas as combinações de preset x fonte x raio geram tema sem erro (teste combinatório).
 - Rascunho nunca altera o que o cliente vê; só `publicar` altera.
-- Pacote não depende de React, React Native nem Next.js (apenas tipos e funções).
+- Pacote não depende de React nem Next.js (apenas tipos e funções).
 
 **Testes esperados:** unitários do validador com casos de borda; combinatório de presets;
 snapshot dos geradores; integração rascunho/publicado/reverter.
 
 ### 4.6 Subagente AC — `app-cliente`
 
-**Missão:** agendar em menos de um minuto, com a marca do estabelecimento, no iOS e no Android.
+**Missão:** agendar em menos de um minuto, com a marca do estabelecimento, no navegador do celular, sem instalar nada.
 
 **Entregas**
-- Expo (TypeScript), navegação, `ProvedorDeTema` que carrega o tema publicado em tempo de execução.
-- Entrada por link profundo, QR e código; cache do tema e fallback offline.
+- Next.js (TypeScript), rotas por estabelecimento (`/{slug}`), `ProvedorDeTema` que aplica as variáveis CSS do tema publicado.
+- Entrada por link, QR e código; PWA instalável (manifesto e service worker) com cache do tema e fallback offline.
 - Telas: início do estabelecimento, catálogo, profissional, calendário de horários livres,
   confirmação, login por OTP, meus agendamentos, cancelar e remarcar.
 - Modo profissional: login por e-mail/senha, agenda do dia, concluir atendimento.
 - Vocabulário dinâmico aplicado a todos os textos; preparação para i18n (pt-BR primeiro).
 - Rodapé do plano Grátis com convite de lead (Fase 2); pedido de avaliação (Fase 3).
-- Builds internos (EAS) e envio para TestFlight/teste interno.
+- Deploy web (preview por PR) e manifesto PWA com a marca do estabelecimento.
 
 **Dependências:** DS-1 (tokens); BN-1 (contrato e mock); AS-1 (login de desenvolvimento).
 **Em paralelo:** CE; ambos contra o mock até BN-2.
 **Critérios de aceite**
 - Fluxo abrir -> escolher serviço -> horário -> confirmar em <= 5 toques e < 60 s em teste cronometrado.
 - Horários visíveis em < 2 s em 4G simulado (perfil de rede 4G no teste).
-- Dois estabelecimentos com temas diferentes renderizam marcas diferentes no mesmo binário.
-- Alvos de toque >= 44 pt; rótulos de acessibilidade em todos os botões e campos.
+- Dois estabelecimentos com temas diferentes renderizam marcas diferentes na mesma aplicação.
+- Alvos de toque >= 44 px; rótulos de acessibilidade em todos os botões e campos.
 - Sem texto fixo "profissional" ou "serviço": tudo vem do vocabulário.
 
-**Testes esperados:** unitários de componentes (Jest + Testing Library); testes de tela com
-mock do api-client; Maestro para o fluxo principal em emulador; verificação de acessibilidade.
+**Testes esperados:** unitários de componentes (Vitest + Testing Library); testes de tela com
+mock do api-client; Playwright em viewport de celular para o fluxo principal; verificação de acessibilidade.
 
 ### 4.7 Subagente CE — `console-estabelecimento`
 
@@ -300,7 +301,7 @@ flags e auditoria; Playwright para funil e acesso assistido; teste de isolamento
 
 **Entregas**
 - Infra BullMQ: filas `lembretes`, `cobranca`, `metricas`; reprocessamento, backoff, fila de falhas.
-- Porta `ProvedorDeMensagem` com adaptadores: push Expo, WhatsApp (API oficial), SMS/OTP, e-mail.
+- Porta `ProvedorDeMensagem` com adaptadores: Web Push, WhatsApp (API oficial), SMS/OTP, e-mail.
 - Agendador de lembretes (24 h e 2 h antes, configurável por plano); respeita opt-out.
 - Registro de cada envio (`notificacao`: status, custo, erro) para custo de WhatsApp e falhas.
 - Cobrança: `Assinatura`, `Fatura`, `Cupom`, porta `GatewayDePagamento`; webhooks idempotentes;
@@ -327,7 +328,7 @@ de filas com Redis real; contrato de adaptadores com provedor simulado; testes d
 - Estrutura `testes/` (e2e, carga, segurança) e dados de teste determinísticos.
 - Suíte de vazamento de tenant: percorre TODAS as rotas autenticadas com token do tenant A e
   dados do B; falha se vier qualquer linha.
-- Smoke e2e por fase: Playwright (web) e Maestro (mobile).
+- Smoke e2e por fase: Playwright (desktop e viewport de celular).
 - Carga com k6 nos horários livres e criação de agendamento.
 - Varredura de dependências e segredos; revisão de OWASP ASVS nível 2 para auth e dados.
 - Checklist LGPD; relatório de acessibilidade por fase.
@@ -532,8 +533,7 @@ Definições comuns:
 | Risco | Impacto | Mitigação | Dono |
 |---|---|---|---|
 | Vazamento de dados entre tenants | Crítico (LGPD, confiança) | RLS com `FORCE`; papéis separados; suíte de tenant em todo PR; revisão de queries nativas | AD, QA |
-| Custo de WhatsApp acima do previsto | Margem do plano Pro | Registrar custo por envio; limite mensal por plano; push como padrão; WhatsApp só Pro/Premium; alerta no dashboard | NC, CP |
-| Reprovação nas lojas de app | Atraso do lançamento | Build interno desde a Fase 1; seguir guias de revisão; conta de demonstração; descrição clara de marca dinâmica; política de privacidade e exclusão de conta no app | AC |
+| Custo de WhatsApp acima do previsto | Margem do plano Pro | Registrar custo por envio; limite mensal por plano; Web Push como padrão; WhatsApp só Pro/Premium; alerta no dashboard | NC, CP |
 | Tema com contraste ruim | Acessibilidade e imagem do produto | Validador obrigatório na publicação; opções curadas; sugestão automática de correção | DS |
 | Inadimplência de estabelecimentos | Receita recorrente | Carência e régua de cobrança; bloqueio gradual de recursos pagos sem apagar dados; Pix e cartão; painel de inadimplência | NC, CP |
 
@@ -541,10 +541,9 @@ Definições comuns:
 
 | # | Decisão | Impacto se atrasar | Prazo ideal |
 |---|---|---|---|
-| 1 | Nome definitivo do produto (Agendaí é provisório) | Identificador do app, domínios, textos legais, contas de loja | Fim da Fase 0 |
-| 2 | Gateway de pagamento (Pix e cartão recorrente, repasse do sinal na Fase 4) | Bloqueia o adaptador real de NC e a cobrança | Início da Fase 2 |
+| 1 | Nome definitivo do produto (Agendaí é provisório) | Domínios, textos legais, contrato do piloto | Fim da Fase 0 |
+| 2 | Gateway de pagamento (Pix Automático e cartão recorrente, repasse do sinal na Fase 4). Recomendação inicial: Asaas, comparando propostas (seção 12.4) | Bloqueia o adaptador real de NC; o piloto não depende dele (cobrança manual) | Antes do P3 |
 | 3 | Provedor da API oficial de WhatsApp | Bloqueia lembretes por WhatsApp | Início da Fase 3 |
-| 4 | Contas de desenvolvedor Apple e Google (CNPJ ou pessoa física) | Bloqueia TestFlight e testes internos | Início da Fase 1 |
 | 5 | Domínios: da plataforma, do console do estabelecimento e do console da plataforma | Deploy e cookies separados | Fim da Fase 0 |
 | 6 | Hospedagem e região dos dados (Brasil recomendado pela LGPD) | Staging e produção | Fim da Fase 0 |
 | 7 | Preços e limites iniciais dos planos | Semente do banco e textos | Início da Fase 2 |
@@ -562,7 +561,7 @@ Cada tarefa é pequena e tem verificação objetiva. Dono entre colchetes.
 - [x] F0-03 Criar `turbo.json` com tarefas `lint`, `typecheck`, `test`, `build`, `dev`. Verifica: `pnpm turbo run build` roda e usa cache na segunda execução.
 - [x] F0-04 Criar `packages/config` com tsconfig base, ESLint e Prettier. Verifica: pacote de exemplo estende e passa no lint.
 - [x] F0-05 Adicionar env tipado e validado (zod) em `packages/config`. Verifica: variável faltando derruba o start com mensagem clara.
-- [x] F0-06 Criar esqueletos de `apps/api`, `apps/mobile-cliente`, `apps/console-estabelecimento`, `apps/console-plataforma`, `packages/dominio`, `packages/design-tokens`, `packages/api-client`. Verifica: `pnpm turbo run typecheck` verde.
+- [x] F0-06 Criar esqueletos de `apps/api`, `apps/app-cliente`, `apps/console-estabelecimento`, `apps/console-plataforma`, `packages/dominio`, `packages/design-tokens`, `packages/api-client`. Verifica: `pnpm turbo run typecheck` verde.
 - [x] F0-07 Regra ESLint proibindo `packages/dominio` de importar NestJS, React e drivers de banco. Verifica: importação proibida de teste falha o lint.
 - [x] F0-08 Regra ESLint proibindo apps de importar de outros apps. Verifica: importação cruzada falha o lint.
 - [ ] F0-09 Criar `docker-compose.yml` com Postgres e Redis. Verifica: `docker compose up -d` e `pg_isready` respondem. (NÃO verificado: daemon Docker indisponível no ambiente de desenvolvimento)
@@ -589,12 +588,99 @@ Cada tarefa é pequena e tem verificação objetiva. Dono entre colchetes.
 ### 11.4 Design tokens [DS]
 - [x] F0-25 Definir tipo `TemaDoEstabelecimento` e valores padrão por vertical. Verifica: typecheck e snapshot dos padrões.
 - [x] F0-26 Implementar o validador de contraste WCAG AA com sugestão de correção. Verifica: casos conhecidos (preto/branco = 21:1; cinza claro sobre branco reprova).
-- [x] F0-27 Gerar `paraVariaveisCss` e `paraTemaNativo`. Verifica: snapshot de ambos para dois temas diferentes.
+- [x] F0-27 Gerar `paraVariaveisCss`. Verifica: snapshot para dois temas diferentes.
 - [x] F0-28 Teste combinatório de todas as combinações de preset, fonte e raio. Verifica: nenhuma combinação gera erro.
 
 ### 11.5 Contratos e qualidade [BN, NC, QA]
 - [x] F0-29 [BN] Publicar OpenAPI inicial (estabelecimento, serviços, horários livres, agendamento) e script `gerar:api-client`. Verifica: cliente gerado compila.
 - [x] F0-30 [NC] Publicar interfaces `ProvedorDeMensagem` e `GatewayDePagamento` em `packages/dominio`. Verifica: typecheck verde; PR revisado por CP.
-- [x] F0-31 [QA] Criar `testes/` com Playwright, Maestro e k6 configurados e um teste de fumaça de cada. Verifica: smoke roda no CI. (e2e verde no CI; k6 só valida o script e falha sem API, job não bloqueante; Maestro manual até existir app)
+- [x] F0-31 [QA] Criar `testes/` com Playwright e k6 configurados e um teste de fumaça de cada. Verifica: smoke roda no CI. (e2e verde no CI; k6 só valida o script e falha sem API, job não bloqueante; Maestro manual até existir app)
 
 **Saída (M0):** todas as tarefas marcadas, CI verde, demonstração de isolamento entre dois tenants e de tema reprovado por contraste.
+
+## 12. Caminho para SaaS com assinatura (piloto → comercial)
+
+Decisão do dono: o produto será um SaaS cobrado por assinatura dos estabelecimentos, **validado
+antes com 1 ou 2 estabelecimentos**. O desenho abaixo evita construir cobrança antes de provar
+que o produto resolve um problema pelo qual alguém paga.
+
+### 12.1 Etapas
+
+| Etapa | Quando | Cobrança | Objetivo | Saída (decisão go/no-go) |
+|---|---|---|---|---|
+| P0. Preparação do piloto | Fim da Fase 1 (M1) | Nenhuma | Ambiente de produção/staging estável, onboarding assistido, termos e privacidade | Piloto pode usar sem risco de perder dados |
+| P1. Piloto grátis (4 a 8 semanas) | Após M1 | Nenhuma (acordo verbal ou escrito) | Medir uso real e coletar objeções com 1 ou 2 estabelecimentos de verticais diferentes | Metas de uso atingidas (12.2) |
+| P2. Piloto pago manual | Final do P1 | **Manual:** Pix ou boleto avulso, mensalidade simbólica ou preço cheio | Testar disposição a pagar e o preço, sem código de cobrança | Pelo menos um piloto aceita pagar o preço-alvo |
+| P3. Assinatura automática | Fase 2 (NC-2) | Gateway com recorrência (cartão e Pix) + nota fiscal | Cobrar sozinho, com inadimplência tratada, para os primeiros clientes além do piloto | Cobrança conciliada sem trabalho manual por 2 ciclos |
+| P4. Venda em escala | Após P3 | Plano Grátis → Pro → Premium com trial | Funil de leads e autoatendimento de contratação | Indicadores de receita (MRR, churn, LTV/CAC) no dashboard |
+
+Regra: **não construir P3 antes de P2 dar sinal positivo.** Até lá, o Console da Plataforma
+registra plano e status manualmente (campo no estabelecimento), e o dono envia a cobrança por Pix.
+
+### 12.2 Metas do piloto (definir antes de começar; ajustáveis)
+
+- Ativação: serviços, equipe e horários cadastrados e tema publicado em até 3 dias do início.
+- Uso: pelo menos 70% dos agendamentos do estabelecimento feitos pelo link/QR da plataforma na 4ª semana.
+- Retenção: o dono abre o console pelo menos 3 vezes por semana.
+- Valor: queda de faltas ou de mensagens manuais relatada pelo dono; NPS informal >= 8.
+- Confiabilidade: zero perda de dado e nenhum horário duplicado; erros críticos corrigidos em 1 dia útil.
+- Pagamento: pelo menos um dos dois aceita pagar o preço-alvo no P2.
+
+### 12.3 O que precisa existir antes do piloto (P0)
+
+- Ambiente de produção separado de staging, backups do PostgreSQL com teste de restauração, monitoramento de erros e alerta de queda.
+- Domínios definidos (decisão em aberto nº 5) e HTTPS; subdomínio por estabelecimento ou rota `/{slug}`.
+- Termos de uso, política de privacidade e **contrato de piloto** (LGPD: o estabelecimento é controlador dos dados dos clientes, a plataforma é operadora).
+- Onboarding assistido (você cadastra o estabelecimento pelo console, com consentimento) e canal de suporte combinado (WhatsApp).
+- Lembretes: no piloto, WhatsApp manual ou Web Push; WhatsApp oficial só depois (custo por conversa).
+- Medição: eventos analíticos já emitidos (seção 7) e uma visão mínima de uso por estabelecimento.
+
+### 12.4 Melhores caminhos para a cobrança (recomendação)
+
+1. **Gateway recomendado para começar: Asaas.** Atende o que o SaaS precisa: assinaturas por boleto,
+   Pix ou cartão, Pix Automático (débito recorrente autorizado pelo pagador, só Pix) e API de
+   assinaturas com sandbox; relatos de desenvolvedores indicam emissão de nota fiscal de serviço
+   pela própria API. Mantemos a porta `GatewayDePagamento` (já criada) para trocar de fornecedor
+   sem mexer no domínio. Alternativas a comparar com propostas reais: Stripe (forte em cartão, Pix
+   recorrente menos maduro), Pagar.me, Iugu, Vindi e Mercado Pago. **As taxas não foram verificadas
+   aqui: peça proposta e compare custo efetivo por método antes de fechar.**
+2. **Pix Automático como padrão para quem não quer cartão.** Reduz inadimplência de boleto e evita o
+   limite de cartão; o cliente autoriza uma vez. Cartão recorrente continua como opção. Boleto só
+   se houver demanda.
+3. **Cobrança manual no P2 e recebimento no piloto = conta Nubank PJ do dono.** Pelo site do Nu
+   Empresas (consultado em 30/10/2026; confirme no app), a conta PJ gera cobrança por Pix (QR Code
+   ou copia e cola) e boleto de cobrança, ambos anunciados como gratuitos, e o Assistente de
+   Cobranças agenda lembretes, juros e multa. A página **não** mostra assinatura recorrente, API nem
+   conciliação automática; portanto no P2 o dono gera a cobrança mensal no app do Nubank e marca o
+   plano como pago no console. Zero código; serve para validar preço. No P3 o gateway cobra e o
+   dinheiro cai na mesma conta Nubank PJ.
+4. **Nota fiscal:** definir com o contador. Para MEI ou empresa pequena de serviços, avaliar a NFS-e
+   nacional/emissor da prefeitura e a emissão via gateway. Nenhuma venda recorrente sem CNPJ e regime definidos.
+5. **Modelo de preço inicial (a validar no P2):** assinatura mensal fixa por estabelecimento, com
+   plano anual com desconto; **trial de 14 dias** sem cartão; limites por plano em configuração
+   (produto.md, seção 7). Evitar comissão por agendamento no início (atrito e dificuldade de auditar).
+6. **Inadimplência:** carência de 5 a 7 dias, depois modo leitura (agenda continua visível, novos
+   agendamentos bloqueados), depois suspensão; nunca apagar dados. Régua de lembrete por e-mail/WhatsApp.
+7. **Webhooks** do gateway assinados, idempotentes e gravados antes de processar; conciliação diária.
+
+### 12.5 Trabalho técnico que isso adiciona ao plano
+
+| Item | Dono | Fase |
+|---|---|---|
+| Campo de plano/status/vencimento editável no console (cobrança manual) | CP + AD | Fase 2, antes do P2 |
+| Visão mínima de uso por estabelecimento (agendamentos, ativação, última atividade) | CP | Fase 2 (lote A do dashboard) |
+| Adaptador `GatewayDePagamento` do fornecedor escolhido + webhooks + conciliação | NC | P3 |
+| Planos, assinatura, fatura, cupom, trial, carência, régua de cobrança | NC + CP | P3 |
+| Autocontratação: fluxo de cadastro, trial, escolha de plano e pagamento | CE + NC | P4 |
+| Eventos `assinatura_*`, `fatura_*` e indicadores MRR/churn/inadimplência | NC + CP | P3/P4 |
+| Termos, privacidade, contrato e DPA | dono + jurídico | P0 |
+
+### 12.6 Riscos específicos e mitigação
+
+| Risco | Mitigação |
+|---|---|
+| Construir cobrança sem validar preço | Regra do P2 antes do P3 |
+| Piloto vira cliente sem contrato | Contrato de piloto com prazo e condição de pagamento |
+| Dependência de um gateway | Porta `GatewayDePagamento` + testes de contrato |
+| Dado de um estabelecimento vazar para o outro | Já mitigado por RLS e testes; reforçar no piloto com auditoria de acesso assistido |
+| Atendimento do piloto consome o desenvolvimento | Combinar canal e horário de suporte; priorizar bugs que travam agendamento |

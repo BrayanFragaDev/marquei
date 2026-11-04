@@ -9,7 +9,7 @@ React, React Native ou Next.js; roda em web e mobile.
 ```ts
 import {
   TemaDoEstabelecimento, ValidadorDeContraste, temaPadraoDaVertical,
-  paraVariaveisCss, paraTemaNativo,
+  paraVariaveisCss,
 } from "@marquei/design-tokens";
 
 const rascunho = temaPadraoDaVertical("barbearia").comRaio("reto"); // imutável: nova instância
@@ -19,8 +19,7 @@ validador.validar(rascunho);                // lista de problemas, com sugestão
 rascunho.validarParaPublicacao(validador);  // lança ContrasteInsuficienteError se reprovar em AA
 validador.corrigir(rascunho);               // aplica as sugestões e devolve novo tema
 
-const { variaveis, css } = paraVariaveisCss(rascunho); // Next.js: --cor-primaria, --raio-cartao...
-const nativo = paraTemaNativo(rascunho);               // React Native: cores, raios, espaçamentos, fonte
+const { variaveis, css } = paraVariaveisCss(rascunho); // apps web: --cor-primaria, --raio-cartao...
 ```
 
 Entrada não confiável (formulário, API) entra por `TemaDoEstabelecimento.criar(entrada)`; ela

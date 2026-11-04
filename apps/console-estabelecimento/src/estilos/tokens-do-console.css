@@ -1,0 +1,43 @@
+/*
+ * Unico lugar com valores literais de cor, fonte, raio, espaco e sombra do console.
+ * E o tema NEUTRO do console (nao e o tema do cliente final do estabelecimento).
+ */
+:root {
+  --ce-cor-fundo: #f4f5f7;
+  --ce-cor-superficie: #ffffff;
+  --ce-cor-borda: #d5d9e0;
+  --ce-cor-texto: #1b1f27;
+  --ce-cor-texto-suave: #4b5363;
+  --ce-cor-acento: #1f4fd8;
+  --ce-cor-texto-sobre-acento: #ffffff;
+  --ce-cor-perigo: #b3261e;
+  --ce-cor-sucesso: #1b6e3c;
+  --ce-cor-alerta-fundo: #fff4d6;
+  --ce-cor-perigo-fundo: #fde8e6;
+  --ce-cor-foco: #0b3bb5;
+
+  --ce-fonte: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --ce-fonte-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --ce-tamanho-base: 16px;
+  --ce-tamanho-pequeno: 14px;
+  --ce-tamanho-titulo: 24px;
+  --ce-tamanho-subtitulo: 18px;
+
+  --ce-raio: 8px;
+  --ce-raio-pequeno: 4px;
+  --ce-raio-celular: 32px;
+
+  --ce-espaco-1: 4px;
+  --ce-espaco-2: 8px;
+  --ce-espaco-3: 12px;
+  --ce-espaco-4: 16px;
+  --ce-espaco-5: 24px;
+  --ce-espaco-6: 32px;
+
+  --ce-sombra: 0 1px 3px rgb(16 24 40 / 12%);
+  --ce-largura-menu: 232px;
+  --ce-largura-celular: 320px;
+  --ce-altura-celular: 560px;
+  --ce-largura-conteudo: 1120px;
+  --ce-altura-toque: 44px;
+}

@@ -60,7 +60,7 @@ describe("regras de fronteira: apps", () => {
 
   it("proibe importar outro app por caminho relativo", async () => {
     const codigo = 'import { x } from "../../../apps/api/src/principal";\nexport { x };';
-    expect(await violacoesDeImport("apps/mobile-cliente/src/exemplo.ts", codigo)).toBe(1);
+    expect(await violacoesDeImport("apps/app-cliente/src/exemplo.ts", codigo)).toBe(1);
   });
 
   it("permite importar packages compartilhados", async () => {

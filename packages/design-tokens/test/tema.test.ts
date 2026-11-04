@@ -10,7 +10,6 @@ import {
   TemaDoEstabelecimento,
   TemaInvalidoError,
   CorInvalidaError,
-  paraTemaNativo,
   paraVariaveisCss,
   temaPadraoDaVertical,
 } from "../src";
@@ -103,7 +102,7 @@ describe("rejeicao de entrada invalida", () => {
 });
 
 describe("geradores", () => {
-  it("combinatorio: cabecalho x cartao x familia x raio x densidade geram tema, CSS e nativo", () => {
+  it("combinatorio: cabecalho x cartao x familia x raio x densidade geram tema e CSS", () => {
     let total = 0;
     for (const cabecalho of IDS_DE_CABECALHO)
       for (const cartao of IDS_DE_CARTAO_DE_SERVICO)
@@ -120,27 +119,14 @@ describe("geradores", () => {
                   .paraDados(),
               );
               const css = paraVariaveisCss(tema);
-              const nativo = paraTemaNativo(tema);
               expect(css.css).toContain(`--preset-cabecalho: ${cabecalho};`);
               expect(css.variaveis["--fonte-familia"]).toContain(
                 FamiliaTipografica.de(familia).nome,
               );
-              expect(nativo.presets.cartaoDeServico).toBe(cartao);
+              expect(css.css).toContain(`--preset-cartao-servico: ${cartao};`);
               total++;
             }
     expect(total).toBe(3 * 3 * 5 * 3 * 2);
-  });
-
-  it("CSS e tema nativo sao coerentes entre si", () => {
-    const tema = temaPadraoDaVertical("barbearia");
-    const { variaveis } = paraVariaveisCss(tema);
-    const nativo = paraTemaNativo(tema);
-    expect(variaveis["--cor-primaria"]).toBe(nativo.cores.primaria);
-    expect(variaveis["--raio-cartao"]).toBe(`${nativo.raios.cartao}px`);
-    expect(variaveis["--raio-botao"]).toBe(`${nativo.raios.botao}px`);
-    expect(variaveis["--espaco-md"]).toBe(`${nativo.espacamentos.md}px`);
-    expect(variaveis["--altura-campo"]).toBe(`${nativo.espacamentos.alturaDoCampo}px`);
-    expect(variaveis["--fonte-familia"]).toContain(nativo.fonte.familia);
   });
 
   it("toda familia tem fallback generico na pilha CSS", () => {
@@ -151,12 +137,10 @@ describe("geradores", () => {
     expect(IDS_DE_FAMILIA.length).toBeLessThanOrEqual(6);
   });
 
-  it("snapshot do CSS e do tema nativo de dois temas diferentes", () => {
+  it("snapshot do CSS de dois temas diferentes", () => {
     const barbearia = temaPadraoDaVertical("barbearia");
     const estetica = temaPadraoDaVertical("estetica");
     expect(paraVariaveisCss(barbearia).css).toMatchSnapshot("css-barbearia");
     expect(paraVariaveisCss(estetica).css).toMatchSnapshot("css-estetica");
-    expect(paraTemaNativo(barbearia)).toMatchSnapshot("nativo-barbearia");
-    expect(paraTemaNativo(estetica)).toMatchSnapshot("nativo-estetica");
   });
 });
