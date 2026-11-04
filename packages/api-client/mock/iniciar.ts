@@ -4,7 +4,8 @@ import { iniciarMock } from "./servidor.ts";
 const porta = Number(process.env["MOCK_API_PORT"] ?? 4010);
 const mock = await iniciarMock({
   porta,
-  ...(process.env["MOCK_API_AGORA"] ? { agora: process.env["MOCK_API_AGORA"] } : {}),
+  // Uso interativo: relogio real (token nao nasce vencido). Fixe com MOCK_API_AGORA para reproduzir cenarios.
+  agora: process.env["MOCK_API_AGORA"] ?? new Date().toISOString(),
 });
 
 console.log(`Mock da API Marquei em ${mock.url} (contrato: apps/api/openapi/openapi.yaml)`);
